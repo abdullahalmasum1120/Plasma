@@ -38,13 +38,13 @@ class Assistant extends StatelessWidget {
           ],
         ),
         body: new Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 20,
-          ),
           child: new Column(
             children: [
               new Expanded(
                 child: new ListView.builder(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                  ),
                   itemCount: demeChatMessages.length,
                   itemBuilder: (context, index) {
                     return new Message(message: demeChatMessages[index]);

@@ -21,7 +21,7 @@ void main() {
         }
         return new MaterialApp(
           home: new CircularProgressIndicator(
-            color: Colors.amber,
+            color: Colors.white,
           ),
         );
       },

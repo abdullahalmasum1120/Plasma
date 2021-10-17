@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 
+import 'package:blood_donation/components/dialogs/request_succesful.dart';
 import 'package:blood_donation/components/filled_Button.dart';
 import 'package:blood_donation/components/outlined_button.dart';
 import 'package:flutter/material.dart';
@@ -135,7 +136,7 @@ class BloodRequestDialog extends StatelessWidget {
                     new SizedBox(
                       height: 20,
                     ),
-                    Padding(
+                    new Padding(
                       padding: const EdgeInsets.all(10),
                       child: new Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -153,6 +154,12 @@ class BloodRequestDialog extends StatelessWidget {
                             size: new Size(0, 0),
                             function: () {
                               Navigator.pop(context, "OK");
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return new SuccessfulDialog();
+                                },
+                              );
                             },
                             borderRadius: 10,
                           ),

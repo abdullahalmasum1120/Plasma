@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new
+// ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 
@@ -10,45 +10,46 @@ class ChatInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 20 / 2,
+        vertical: 10,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: Colors.white,
         boxShadow: [
           BoxShadow(
-            offset: Offset(0, 4),
+            offset: Offset(0, -10),
             blurRadius: 32,
-            color: Color(0xFF087949).withOpacity(0.08),
+            color: Colors.grey.withOpacity(0.2),
           ),
         ],
       ),
       child: SafeArea(
         child: Row(
           children: [
-            Icon(Icons.mic, color: new Color(0xFFFF2156)),
-            SizedBox(width: 20),
+            new IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.camera_alt_outlined,
+                color: Colors.black,
+              ),
+            ),
             Expanded(
               child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20 * 0.75,
-                ),
                 decoration: BoxDecoration(
-                  color: new Color(0xFFFF2156).withOpacity(0.05),
+                  color: new Color(0xFFFF2156).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(40),
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.sentiment_satisfied_alt_outlined,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodyText1!
-                          .color!
-                          .withOpacity(0.64),
+                    new IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.mic,
+                        color: Colors.black,
+                      ),
                     ),
-                    SizedBox(width: 20 / 4),
+                    SizedBox(width: 5),
                     Expanded(
                       child: TextField(
                         decoration: InputDecoration(
@@ -57,25 +58,22 @@ class ChatInputField extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Icon(
-                      Icons.attach_file,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodyText1!
-                          .color!
-                          .withOpacity(0.64),
-                    ),
-                    SizedBox(width: 20 / 4),
-                    Icon(
-                      Icons.camera_alt_outlined,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodyText1!
-                          .color!
-                          .withOpacity(0.64),
+                    new IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.sentiment_satisfied_alt_outlined,
+                        color: Colors.black,
+                      ),
                     ),
                   ],
                 ),
+              ),
+            ),
+            new IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.send,
+                color: new Color(0xFFFF2165),
               ),
             ),
           ],
