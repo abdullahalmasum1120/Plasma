@@ -323,15 +323,61 @@ class _RegisterState extends State<Register> {
     String bloodGroup,
     String location,
     String time,
-  ) {
-    //Sign in with firebase then update UI
-    Navigator.push(
-      context,
-      new MaterialPageRoute(
-        builder: (context) {
-          return new Verify();
-        },
-      ),
-    );
+  ) async {
+    Map<String, String> userInfo = {
+      "username": username,
+      "email": email,
+      "password": password,
+      "mobile": mobile,
+      "bloodGroup": bloodGroup,
+      "location": location,
+      "time": time,
+    };
+    try {
+      //register user
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .then((event) {
+        if (event.user != null) {
+          //uploading user details
+          DatabaseReference databaseReference = FirebaseDatabase.instance
+              .reference()
+              .child("users")
+              .child(event.user!.uid);
+          databaseReference.set(userInfo);
+          //updating UI
+          Navigator.push(
+            context,
+            new MaterialPageRoute(
+              builder: (context) {
+                return new Verify();
+              },
+            ),
+          );
+        }
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return new AlertDialog(
+              title: new Text("Warning!"),
+              content: new Text("The account already exists for that email."),
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return new AlertDialog(
+              title: new Text("Warning!"),
+              content: new Text(e.code),
+            );
+          },
+        );
+      }
+    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:blood_donation/components/filled_Button.dart';
 import 'package:blood_donation/pages/home/home.dart';
 import 'package:blood_donation/pages/login/forgot_password/forgot_password.dart';
 import 'package:blood_donation/pages/register/register.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -230,14 +231,54 @@ class _LogInState extends State<LogIn> {
   void _signInUser(
     String email,
     String password,
-  ) {
-    Navigator.push(
-      context,
-      new MaterialPageRoute(
-        builder: (context) {
-          return new MyHome();
-        },
-      ),
-    );
+  ) async {
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password)
+          .then((value) {
+        if (value.user != null) {
+          Navigator.push(
+            context,
+            new MaterialPageRoute(
+              builder: (context) {
+                return new MyHome();
+              },
+            ),
+          );
+        }
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return new AlertDialog(
+              title: new Text("Warning!"),
+              content: new Text("No user found for that email."),
+            );
+          },
+        );
+      } else if (e.code == 'wrong-password') {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return new AlertDialog(
+              title: new Text("Warning!"),
+              content: new Text("Wrong password provided for that user."),
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return new AlertDialog(
+              title: new Text("Warning!"),
+              content: new Text(e.code),
+            );
+          },
+        );
+      }
+    }
   }
 }

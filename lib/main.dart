@@ -14,9 +14,6 @@ void main() {
           return new MaterialApp(
             debugShowCheckedModeBanner: false,
             home: new MySplash(),
-            theme: new ThemeData(
-              primaryColor: Colors.white,
-            ),
           );
         }
         return new MaterialApp(
