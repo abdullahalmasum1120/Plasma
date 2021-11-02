@@ -8,4 +8,6 @@ class AuthProvider {
   });
 
   get authState => firebaseAuth.authStateChanges();
+
+
 }

@@ -147,7 +147,13 @@ class _LogInState extends State<LogIn> {
                       height: 40,
                     ),
                     new MyFilledButton(
-                      text: "LOG IN",
+                      child: new Text("LOG IN",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.bold,
+                        ),),
                       size: new Size(double.infinity, 0),
                       borderRadius: 50,
                       function: () {

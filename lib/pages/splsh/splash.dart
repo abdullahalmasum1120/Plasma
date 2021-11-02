@@ -2,6 +2,10 @@
 
 import 'dart:async';
 import 'package:blood_donation/pages/bording/on_boarding.dart';
+import 'package:blood_donation/pages/home/home.dart';
+import 'package:blood_donation/pages/update_user_info/user_info.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -18,16 +22,64 @@ class _MySplashState extends State<MySplash> {
     super.initState();
 
     new Timer(
-      new Duration(seconds: 3),
+      new Duration(seconds: 1),
       () {
-        Navigator.pushReplacement(
-          context,
-          new MaterialPageRoute(
-            builder: (context) {
-              return new OnBoarding();
-            },
-          ),
-        );
+        if (FirebaseAuth.instance.currentUser == null) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            new MaterialPageRoute(
+              builder: (context) {
+                return new OnBoarding();
+              },
+            ),
+            (route) => false,
+          );
+        }
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get()
+            .then((snapshot) => {
+                  if (snapshot.exists)
+                    {
+                      if (snapshot.data()!.isNotEmpty)
+                        {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            new MaterialPageRoute(
+                              builder: (context) {
+                                return new MyHome();
+                              },
+                            ),
+                                (route) => false,
+                          ),
+                        }
+                      else
+                        {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            new MaterialPageRoute(
+                              builder: (context) {
+                                return new UpdateUserInfo();
+                              },
+                            ),
+                                (route) => false,
+                          ),
+                        }
+                    }
+                  else
+                    {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        new MaterialPageRoute(
+                          builder: (context) {
+                            return new UpdateUserInfo();
+                          },
+                        ),
+                            (route) => false,
+                      ),
+                    }
+                });
       },
     );
   }

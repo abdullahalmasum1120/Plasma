@@ -40,4 +40,10 @@ class DataValidator {
     }
     return false;
   }
+  static bool isValidateCode(String code) {
+    if (code.length == 6) {
+      return true;
+    }
+    return false;
+  }
 }

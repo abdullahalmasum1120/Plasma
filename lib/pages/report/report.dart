@@ -211,7 +211,13 @@ class Report extends StatelessWidget {
                   height: 40,
                 ),
                 new MyFilledButton(
-                  text: "My Report",
+                  child: new Text("My Report",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.bold,
+                    ),),
                   size: new Size(0, 0),
                   borderRadius: 50,
                   function: () {},

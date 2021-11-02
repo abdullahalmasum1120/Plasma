@@ -22,7 +22,13 @@ class Finished extends StatelessWidget {
                 height: 100,
               ),
               new MyFilledButton(
-                text: "FINISH",
+                child: new Text("FINISH",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.bold,
+                  ),),
                 size: new Size(double.infinity, 0),
                 borderRadius: 50,
                 function: () {

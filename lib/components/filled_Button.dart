@@ -3,14 +3,14 @@
 import 'package:flutter/material.dart';
 
 class MyFilledButton extends StatelessWidget {
-  final String text;
+  final Widget child;
   final Size size;
-  final VoidCallback function;
+  final VoidCallback? function;
   final double borderRadius;
 
   const MyFilledButton({
     Key? key,
-    required this.text,
+    required this.child,
     required this.size,
     required this.function,
     required this.borderRadius,
@@ -28,15 +28,7 @@ class MyFilledButton extends StatelessWidget {
         ),
       ),
       onPressed: function,
-      child: new Text(
-        text,
-        style: new TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          letterSpacing: 1.2,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: child,
     );
   }
 }

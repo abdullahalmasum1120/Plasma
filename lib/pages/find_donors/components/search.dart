@@ -160,7 +160,13 @@ class _SearchState extends State<Search> {
                         ),
                       ),
                       new MyFilledButton(
-                        text: "Apply",
+                        child: new Text("Apply",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            letterSpacing: 1.2,
+                            fontWeight: FontWeight.bold,
+                          ),),
                         size: new Size(0, 0),
                         borderRadius: 50,
                         function: () {},

@@ -250,7 +250,13 @@ class _RegisterState extends State<Register> {
                       height: 50,
                     ),
                     new MyFilledButton(
-                      text: "REGISTER",
+                      child: new Text("REGISTER",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.bold,
+                        ),),
                       size: new Size(double.infinity, 0),
                       borderRadius: 10,
                       function: () {

@@ -174,7 +174,13 @@ class Verify extends StatelessWidget {
               height: 40,
             ),
             new MyFilledButton(
-              text: "VERIFY",
+              child: new Text("VERIFY",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.bold,
+                ),),
               size: new Size(double.infinity, 0),
               borderRadius: 100,
               function: () {

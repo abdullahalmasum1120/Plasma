@@ -150,7 +150,13 @@ class BloodRequestDialog extends StatelessWidget {
                             borderRadius: 10,
                           ),
                           new MyFilledButton(
-                            text: "Add",
+                            child: new Text("Add",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                letterSpacing: 1.2,
+                                fontWeight: FontWeight.bold,
+                              ),),
                             size: new Size(0, 0),
                             function: () {
                               Navigator.pop(context, "OK");

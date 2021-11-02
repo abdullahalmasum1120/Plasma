@@ -6,8 +6,15 @@ import 'package:flutter/material.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    new FutureBuilder(
+  runApp(new MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return new FutureBuilder(
       future: Firebase.initializeApp(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
@@ -17,11 +24,14 @@ void main() {
           );
         }
         return new MaterialApp(
-          home: new CircularProgressIndicator(
-            color: Colors.white,
+          debugShowCheckedModeBanner: false,
+          home: new Center(
+            child: new CircularProgressIndicator(
+              color: Colors.white,
+            ),
           ),
         );
       },
-    ),
-  );
+    );
+  }
 }

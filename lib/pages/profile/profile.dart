@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 
+import 'package:blood_donation/pages/authentication/phone_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 
@@ -354,19 +356,31 @@ class Profile extends StatelessWidget {
                         horizontal: 20,
                         vertical: 10,
                       ),
-                      child: new Row(
-                        children: [
-                          new Icon(
-                            Icons.exit_to_app_outlined,
-                            color: new Color(0xFFFF2156),
-                          ),
-                          new SizedBox(
-                            width: 10,
-                          ),
-                          new Expanded(
-                            child: new Text("Sign out"),
-                          ),
-                        ],
+                      child: new GestureDetector(
+                        onTap: () {
+                          FirebaseAuth.instance.signOut();
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            new MaterialPageRoute(builder: (context) {
+                              return new PhoneAuth();
+                            }),
+                            (route) => false,
+                          );
+                        },
+                        child: new Row(
+                          children: [
+                            new Icon(
+                              Icons.exit_to_app_outlined,
+                              color: new Color(0xFFFF2156),
+                            ),
+                            new SizedBox(
+                              width: 10,
+                            ),
+                            new Expanded(
+                              child: new Text("Sign out"),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   )

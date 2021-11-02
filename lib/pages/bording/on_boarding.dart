@@ -2,6 +2,7 @@
 
 import 'package:blood_donation/components/filled_Button.dart';
 import 'package:blood_donation/components/outlined_button.dart';
+import 'package:blood_donation/pages/authentication/phone_auth.dart';
 import 'package:blood_donation/pages/bording/components/first_page.dart';
 import 'package:blood_donation/pages/bording/components/last_page.dart';
 import 'package:blood_donation/pages/bording/final_boarding.dart';
@@ -54,30 +55,40 @@ class _OnBoardingState extends State<OnBoarding> {
                       size: new Size(0, 0),
                       borderRadius: 10,
                       function: () {
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           new MaterialPageRoute(
                             builder: (context) {
-                              return new OnBoardingFinal();
+                              return new PhoneAuth();
                             },
                           ),
+                          (route) => false,
                         );
                       },
                     ),
                     new MyFilledButton(
-                      text: "Next",
+                      child: new Text(
+                        "Next",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       size: new Size(0, 0),
                       borderRadius: 10,
                       function: () {
                         setState(() {
                           if (pageController.page == 1) {
-                            Navigator.push(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               new MaterialPageRoute(
                                 builder: (context) {
-                                  return new OnBoardingFinal();
+                                  return new PhoneAuth();
                                 },
                               ),
+                              (route) => false,
                             );
                           } else {
                             pageController.nextPage(

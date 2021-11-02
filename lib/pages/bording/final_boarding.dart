@@ -97,7 +97,13 @@ class OnBoardingFinal extends StatelessWidget {
                     ),
                   );
                 },
-                text: "REGISTER",
+                child: new Text("REGISTER",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.bold,
+                  ),),
                 size: new Size(double.infinity, 0),
                 borderRadius: 50,
               ),
