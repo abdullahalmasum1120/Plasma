@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_new, prefer_const_constructors
 
+import 'dart:async';
+
 import 'package:blood_donation/components/assentials/data_validator.dart';
 import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/filled_Button.dart';
@@ -18,12 +20,24 @@ class PhoneAuth extends StatefulWidget {
 
 class _PhoneAuthState extends State<PhoneAuth> {
   bool isCodeVerifyingState = false;
+  bool isLoading = false;
   String _verificationId = "default";
   final GlobalKey<FormState> _phoneFormKey = new GlobalKey<FormState>();
   final TextEditingController _phoneController = new TextEditingController();
   final GlobalKey<FormState> _codeFormKey = GlobalKey<FormState>();
   final TextEditingController _codeController = new TextEditingController();
   int? _forceResendingToken;
+
+  int resendCounter = 120;
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+
+    _phoneController.dispose();
+    _codeController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +93,7 @@ class _PhoneAuthState extends State<PhoneAuth> {
                     child: new TextFormField(
                       controller: _phoneController,
                       validator: (phone) {
-                        if (DataValidator.isValidatePhone(phone!)) {
+                        if (DataValidator.isValidatePhone(phone!.trim())) {
                           return null;
                         }
                         return "Please provide a valid Phone number";
@@ -98,7 +112,7 @@ class _PhoneAuthState extends State<PhoneAuth> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         hintText: "Phone No",
-                        contentPadding: EdgeInsets.all(10),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
                         prefixIcon: new Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -114,23 +128,108 @@ class _PhoneAuthState extends State<PhoneAuth> {
                         ),
                         suffix: new Material(
                           child: new InkWell(
-                            onTap: () {
-                              if (_phoneFormKey.currentState!.validate()) {
-                                _getVerificationCode(
-                                  phone: _phoneController.text.trim(),
-                                );
-                              }
-                            },
-                            child: new Text(
-                              (isCodeVerifyingState)
-                                  ? "Resend Code"
-                                  : "Get Code",
-                              style: new TextStyle(
-                                color: new Color(0xFFFF2156),
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 1.25,
-                              ),
-                            ),
+                            onTap: (isCodeVerifyingState)
+                                ? null
+                                : () {
+                                    if (_phoneFormKey.currentState!
+                                        .validate()) {
+                                      setState(() {
+                                        isLoading = true;
+                                      });
+                                      FirebaseAuth.instance.verifyPhoneNumber(
+                                        forceResendingToken:
+                                            _forceResendingToken,
+                                        timeout: Duration(minutes: 2),
+                                        phoneNumber:
+                                            "+88${_phoneController.text.trim()}",
+                                        verificationCompleted:
+                                            (PhoneAuthCredential
+                                                _phoneAuthCredential) {
+                                          setState(() {
+                                            isCodeVerifyingState = false;
+                                            isLoading = false;
+                                          });
+                                          showDialog(
+                                            barrierDismissible: false,
+                                            context: context,
+                                            builder: (context) {
+                                              return Loading();
+                                            },
+                                          );
+                                          signInAndNavigate(
+                                            phoneAuthCredential:
+                                                _phoneAuthCredential,
+                                            context: context,
+                                          );
+                                        },
+                                        verificationFailed:
+                                            (FirebaseAuthException
+                                                _firebaseAuthException) {
+                                          setState(() {
+                                            isCodeVerifyingState = false;
+                                            isLoading = false;
+                                          });
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            new SnackBar(
+                                              duration: Duration(seconds: 5),
+                                              content: Text(
+                                                  _firebaseAuthException.code),
+                                            ),
+                                          );
+                                        },
+                                        codeSent: (String _verificationId,
+                                            int? _forceResendingToken) {
+                                          this._verificationId =
+                                              _verificationId;
+                                          this._forceResendingToken =
+                                              _forceResendingToken;
+                                          setState(() {
+                                            isCodeVerifyingState = true;
+                                            isLoading = false;
+                                          });
+                                          Timer.periodic(Duration(seconds: 1),
+                                              (timer) {
+                                            if (isCodeVerifyingState) {
+                                              if (resendCounter <= 0) {
+                                                timer.cancel();
+                                                resendCounter = 120;
+                                              }
+                                              setState(() {
+                                                resendCounter--;
+                                              });
+                                            } else {
+                                              timer.cancel();
+                                              resendCounter = 120;
+                                            }
+                                          });
+                                        },
+                                        codeAutoRetrievalTimeout:
+                                            (String _verificationId) {
+                                          setState(() {
+                                            isCodeVerifyingState = false;
+                                            isLoading = false;
+                                          });
+                                        },
+                                      );
+                                    }
+                                  },
+                            child: isLoading
+                                ? CircularProgressIndicator(
+                                  color: new Color(0xFFFF2156),
+                                )
+                                : new Text(
+                                    isCodeVerifyingState
+                                        ? "$resendCounter s"
+                                        : "Get Code",
+                                    style: new TextStyle(
+                                      color: (isCodeVerifyingState)
+                                          ? Colors.grey
+                                          : new Color(0xFFFF2156),
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 1.25,
+                                    ),
+                                  ),
                           ),
                         ),
                         prefixIconConstraints: new BoxConstraints(
@@ -187,6 +286,15 @@ class _PhoneAuthState extends State<PhoneAuth> {
                         ? () {
                             if (_codeFormKey.currentState!.validate()) {
                               if (_verificationId != "default") {
+                                setState(() {
+                                  isCodeVerifyingState = false;
+                                });
+                                showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (context) {
+                                      return new Loading();
+                                    });
                                 signInAndNavigate(
                                   phoneAuthCredential:
                                       PhoneAuthProvider.credential(
@@ -207,55 +315,6 @@ class _PhoneAuthState extends State<PhoneAuth> {
           ),
         ),
       )),
-    );
-  }
-
-  void _getVerificationCode({
-    required String phone,
-  }) {
-    FirebaseAuth.instance.verifyPhoneNumber(
-      timeout: Duration(minutes: 2),
-      phoneNumber: "+88$phone",
-      verificationCompleted: (PhoneAuthCredential _phoneAuthCredential) {
-        setState(() {
-          isCodeVerifyingState = false;
-        });
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return Loading();
-          },
-        );
-        signInAndNavigate(
-          phoneAuthCredential: _phoneAuthCredential,
-          context: context,
-        );
-      },
-      verificationFailed: (FirebaseAuthException _firebaseAuthException) {
-        setState(() {
-          isCodeVerifyingState = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          new SnackBar(
-            duration: Duration(seconds: 5),
-            content: Text(_firebaseAuthException.code),
-          ),
-        );
-      },
-      codeSent: (String _verificationId, int? _forceResendingToken) {
-        this._verificationId = _verificationId;
-        this._forceResendingToken = _forceResendingToken;
-
-        setState(() {
-          isCodeVerifyingState = true;
-        });
-      },
-      codeAutoRetrievalTimeout: (String _verificationId) {
-        setState(() {
-          isCodeVerifyingState = false;
-        });
-      },
     );
   }
 }
@@ -279,6 +338,7 @@ void signInAndNavigate({
             if (value.user != null)
               {
                 _hasUserData(value.user).then((value) => {
+                      Navigator.pop(context),
                       if (value)
                         {
                           Navigator.pushAndRemoveUntil(
@@ -307,6 +367,7 @@ void signInAndNavigate({
               }
           })
       .catchError((error) {
+    Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       new SnackBar(
         duration: Duration(seconds: 5),
