@@ -12,11 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class UpdateUserInfo extends StatefulWidget {
-
-
   const UpdateUserInfo({
     Key? key,
-
   }) : super(key: key);
 
   @override
@@ -31,7 +28,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
 
   //keys
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String _selectedBloodGroup = "default";
+  String _selectedBloodGroup = "A+";
 
   @override
   Widget build(BuildContext context) {
@@ -173,6 +170,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
                           color: new Color(0xFFFF2156),
                         ),
                       ),
+                      value: _selectedBloodGroup,
                       hint: new Text("Blood Group"),
                       items: <String>[
                         'A+',
@@ -201,13 +199,15 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
                       height: 50,
                     ),
                     new MyFilledButton(
-                      child: new Text("UPDATE",
+                      child: new Text(
+                        "UPDATE",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           letterSpacing: 1.2,
                           fontWeight: FontWeight.bold,
-                        ),),
+                        ),
+                      ),
                       size: new Size(double.infinity, 0),
                       borderRadius: 10,
                       function: () {
@@ -248,9 +248,11 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
     required String registrationTime,
     required String registrationDate,
   }) async {
-    showDialog(context: context, builder: (context){
-      return Loading();
-    });
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Loading();
+        });
     Map<String, String> userInfo = {
       "username": username,
       "email": email,

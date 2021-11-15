@@ -5,7 +5,6 @@ import 'package:blood_donation/components/outlined_button.dart';
 import 'package:blood_donation/pages/authentication/phone_auth.dart';
 import 'package:blood_donation/pages/bording/components/first_page.dart';
 import 'package:blood_donation/pages/bording/components/last_page.dart';
-import 'package:blood_donation/pages/bording/final_boarding.dart';
 import 'package:flutter/material.dart';
 
 class OnBoarding extends StatefulWidget {

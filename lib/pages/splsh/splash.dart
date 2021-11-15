@@ -1,6 +1,6 @@
 // ignore_for_file: unnecessary_new, prefer_const_constructors
 
-import 'dart:async';
+import 'package:blood_donation/components/filled_Button.dart';
 import 'package:blood_donation/pages/bording/on_boarding.dart';
 import 'package:blood_donation/pages/home/home.dart';
 import 'package:blood_donation/pages/update_user_info/user_info.dart';
@@ -9,80 +9,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class MySplash extends StatefulWidget {
-  const MySplash({Key? key}) : super(key: key);
+class MySplash extends StatelessWidget {
+  final User? user = FirebaseAuth.instance.currentUser;
 
-  @override
-  State<MySplash> createState() => _MySplashState();
-}
-
-class _MySplashState extends State<MySplash> {
-  @override
-  void initState() {
-    super.initState();
-
-    new Timer(
-      new Duration(seconds: 1),
-      () {
-        if (FirebaseAuth.instance.currentUser == null) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            new MaterialPageRoute(
-              builder: (context) {
-                return new OnBoarding();
-              },
-            ),
-            (route) => false,
-          );
-        }
-        FirebaseFirestore.instance
-            .collection("users")
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .get()
-            .then((snapshot) => {
-                  if (snapshot.exists)
-                    {
-                      if (snapshot.data()!.isNotEmpty)
-                        {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            new MaterialPageRoute(
-                              builder: (context) {
-                                return new MyHome();
-                              },
-                            ),
-                                (route) => false,
-                          ),
-                        }
-                      else
-                        {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            new MaterialPageRoute(
-                              builder: (context) {
-                                return new UpdateUserInfo();
-                              },
-                            ),
-                                (route) => false,
-                          ),
-                        }
-                    }
-                  else
-                    {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        new MaterialPageRoute(
-                          builder: (context) {
-                            return new UpdateUserInfo();
-                          },
-                        ),
-                            (route) => false,
-                      ),
-                    }
-                });
-      },
-    );
-  }
+  MySplash({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -131,11 +61,77 @@ class _MySplashState extends State<MySplash> {
                   new SizedBox(
                     height: 20,
                   ),
-                  new CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
                 ],
               ),
+            ),
+            Positioned(
+              bottom: 10,
+              right: 10,
+              left: 10,
+              child: (user != null)
+                  ? new FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection("users")
+                          .doc(FirebaseAuth.instance.currentUser!.uid)
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            new SnackBar(
+                              content: new Text("Error checking details"),
+                            ),
+                          );
+                        }
+                        if (snapshot.hasData && !snapshot.data!.exists) {
+                          Future.microtask(() => Navigator.pushAndRemoveUntil(
+                                context,
+                                new MaterialPageRoute(
+                                  builder: (context) {
+                                    return new UpdateUserInfo();
+                                  },
+                                ),
+                                (route) => false,
+                              ));
+                        }
+                        if (snapshot.connectionState == ConnectionState.done && snapshot.data!= null) {
+                          Future.microtask(() => Navigator.pushAndRemoveUntil(
+                                context,
+                                new MaterialPageRoute(
+                                  builder: (context) {
+                                    return new MyHome();
+                                  },
+                                ),
+                                (route) => false,
+                              ));
+                        }
+
+                        return new Center(
+                          child: new CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        );
+                      })
+                  : new MyFilledButton(
+                      child: new Text(
+                        "Get Started",
+                        style: new TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                        ),
+                      ),
+                      size: Size(double.infinity, 0),
+                      function: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          new MaterialPageRoute(builder: (context) {
+                            return OnBoarding();
+                          }),
+                          (route) => false,
+                        );
+                      },
+                      borderRadius: 10,
+                    ),
             ),
           ],
         ),
