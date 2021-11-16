@@ -93,7 +93,8 @@ class MySplash extends StatelessWidget {
                                 (route) => false,
                               ));
                         }
-                        if (snapshot.connectionState == ConnectionState.done && snapshot.data!= null) {
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            snapshot.data!.data() != null) {
                           Future.microtask(() => Navigator.pushAndRemoveUntil(
                                 context,
                                 new MaterialPageRoute(
