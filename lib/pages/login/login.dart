@@ -247,7 +247,7 @@ class _LogInState extends State<LogIn> {
             context,
             new MaterialPageRoute(
               builder: (context) {
-                return new MyHome();
+                return new Home();
               },
             ),
           );

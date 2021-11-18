@@ -287,7 +287,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
                     context,
                     new MaterialPageRoute(
                       builder: (context) {
-                        return new MyHome();
+                        return new Home();
                       },
                     ),
                   ),

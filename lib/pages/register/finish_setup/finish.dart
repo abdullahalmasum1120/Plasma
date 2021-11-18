@@ -36,7 +36,7 @@ class Finished extends StatelessWidget {
                     context,
                     new MaterialPageRoute(
                       builder: (context) {
-                        return new MyHome();
+                        return new Home();
                       },
                     ),
                   );

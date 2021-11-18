@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 
-import 'package:blood_donation/pages/authentication/phone_auth.dart';
+import 'package:blood_donation/pages/authentication/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
@@ -362,7 +362,7 @@ class Profile extends StatelessWidget {
                           Navigator.pushAndRemoveUntil(
                             context,
                             new MaterialPageRoute(builder: (context) {
-                              return new PhoneAuth();
+                              return new Authentication();
                             }),
                             (route) => false,
                           );

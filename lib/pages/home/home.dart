@@ -6,16 +6,16 @@ import 'package:blood_donation/pages/home/components/body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class MyHome extends StatefulWidget {
-  const MyHome({
+class Home extends StatefulWidget {
+  const Home({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<MyHome> createState() => _MyHomeState();
+  State<Home> createState() => _HomeState();
 }
 
-class _MyHomeState extends State<MyHome> {
+class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(

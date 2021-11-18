@@ -2,31 +2,30 @@
 
 import 'package:blood_donation/components/filled_Button.dart';
 import 'package:blood_donation/components/outlined_button.dart';
-import 'package:blood_donation/pages/authentication/phone_auth.dart';
 import 'package:blood_donation/pages/bording/components/first_page.dart';
 import 'package:blood_donation/pages/bording/components/last_page.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class OnBoarding extends StatefulWidget {
-  const OnBoarding({
+class Boarding extends StatefulWidget {
+  const Boarding({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<OnBoarding> createState() => _OnBoardingState();
+  State<Boarding> createState() => _BoardingState();
 }
 
-class _OnBoardingState extends State<OnBoarding> {
+class _BoardingState extends State<Boarding> {
   @override
   Widget build(BuildContext context) {
     final PageController pageController = new PageController(
       initialPage: 0,
     );
 
-    return Scaffold(
+    return new Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
-        //body container
+      body: new Container(
         height: double.infinity,
         width: double.infinity,
         color: Colors.white,
@@ -44,31 +43,21 @@ class _OnBoardingState extends State<OnBoarding> {
               bottom: 0,
               left: 0,
               right: 0,
-              child: Padding(
+              child: new Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                child: Row(
+                child: new Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     new MyOutlinedButton(
                       text: "Skip",
                       size: new Size(0, 0),
                       borderRadius: 10,
-                      function: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          new MaterialPageRoute(
-                            builder: (context) {
-                              return new PhoneAuth();
-                            },
-                          ),
-                          (route) => false,
-                        );
-                      },
+                      function: () => Get.toNamed("/authentication"),
                     ),
                     new MyFilledButton(
                       child: new Text(
                         "Next",
-                        style: TextStyle(
+                        style: new TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           letterSpacing: 1.2,
@@ -80,18 +69,10 @@ class _OnBoardingState extends State<OnBoarding> {
                       function: () {
                         setState(() {
                           if (pageController.page == 1) {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              new MaterialPageRoute(
-                                builder: (context) {
-                                  return new PhoneAuth();
-                                },
-                              ),
-                              (route) => false,
-                            );
+                            Get.toNamed("/authentication");
                           } else {
                             pageController.nextPage(
-                              duration: new Duration(seconds: 1),
+                              duration: new Duration(milliseconds: 500),
                               curve: Curves.easeOut,
                             );
                           }
