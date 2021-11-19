@@ -71,15 +71,7 @@ class Splash extends StatelessWidget {
                           .doc(FirebaseAuth.instance.currentUser!.uid)
                           .get(),
                       builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            new SnackBar(
-                              content: new Text("Error checking details"),
-                            ),
-                          );
-                        }
                         if (!(snapshot.hasData &&
-                            snapshot.data!.exists &&
                             snapshot.data!.data() != null)) {
                           Future.microtask(
                               () => Get.offAllNamed("/userInfoUpdate"));

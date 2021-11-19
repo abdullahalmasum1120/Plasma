@@ -33,11 +33,11 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
-
     usernameController.dispose();
     emailController.dispose();
     locationController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -231,8 +231,8 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
                               location: locationController.text.trim(),
                               registrationTime:
                                   DateFormat('kk:mm').format(DateTime.now()),
-                              registrationDate:
-                                  DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                              registrationDate: DateFormat('yyyy-MM-dd')
+                                  .format(DateTime.now()),
                             );
                           }
                         },
