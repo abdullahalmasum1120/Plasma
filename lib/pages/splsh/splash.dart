@@ -12,8 +12,6 @@ class Splash extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final User? user = FirebaseAuth.instance.currentUser;
-
     return new Scaffold(
       backgroundColor: Colors.white,
       body: new Container(
@@ -64,22 +62,17 @@ class Splash extends StatelessWidget {
               bottom: 10,
               right: 10,
               left: 10,
-              child: (user != null)
-                  ? new FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance
-                          .collection("users")
-                          .doc(FirebaseAuth.instance.currentUser!.uid)
-                          .get(),
+              child: (FirebaseAuth.instance.currentUser != null)
+                  ? new FutureBuilder<bool>(
+                      future:
+                          hasUserData(user: FirebaseAuth.instance.currentUser),
                       builder: (context, snapshot) {
-                        if (!(snapshot.hasData &&
-                            snapshot.data!.data() != null)) {
+                        if (snapshot.data == true) {
+                          Future.microtask(() => Get.offAllNamed("/home"));
+                        } else {
                           Future.microtask(
                               () => Get.offAllNamed("/userInfoUpdate"));
                         }
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          Future.microtask(() => Get.offAllNamed("/home"));
-                        }
-
                         return new Center(
                           child: new CircularProgressIndicator(
                             color: Colors.white,
@@ -104,5 +97,24 @@ class Splash extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> hasUserData({required User? user}) async {
+    bool hasData = false;
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection("users")
+          .doc(user!.uid)
+          .get();
+      if (snapshot.data() != null && snapshot.data()!.isNotEmpty) {
+        hasData = true;
+      } else {
+        hasData = false;
+      }
+    } on FirebaseException catch (e) {
+      Get.snackbar("Warning!", e.code);
+    }
+    return hasData;
   }
 }
