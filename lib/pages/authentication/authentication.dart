@@ -161,6 +161,7 @@ class _AuthenticationState extends State<Authentication> {
                         prefixIconConstraints: new BoxConstraints(
                           maxWidth: 80,
                         ),
+                        alignLabelWithHint: true,
                       ),
                       readOnly: (authState == AuthState.codeSent),
                     ),
@@ -220,44 +221,7 @@ class _AuthenticationState extends State<Authentication> {
                                       return new Loading();
                                     });
 
-                                try {
-                                  UserCredential userCredential =
-                                      await FirebaseAuth
-                                          .instance
-                                          .signInWithCredential(
-                                              PhoneAuthProvider.credential(
-                                    verificationId: _verificationId,
-                                    smsCode: _codeController.text.trim(),
-                                  ));
-                                  if (userCredential.user != null) {
-                                    setState(() {
-                                      authState = AuthState.idle;
-                                    });
-
-                                    try {
-                                      DocumentSnapshot<Map<String, dynamic>>
-                                          snapshot = await FirebaseFirestore
-                                              .instance
-                                              .collection("users")
-                                              .doc(userCredential.user!.uid)
-                                              .get();
-                                      if (snapshot.data() != null &&
-                                          snapshot.data()!.isNotEmpty) {
-                                        //data exist
-                                        Navigator.pop(context);
-                                        Get.offAllNamed("/");
-                                      } else {
-                                        Get.offAllNamed("/userInfoUpdate");
-                                      }
-                                    } on FirebaseException catch (e) {
-                                      Navigator.of(context).pop();
-                                      Get.snackbar("Warning!", e.code);
-                                    }
-                                  }
-                                } on FirebaseAuthException catch (e) {
-                                  Navigator.pop(context);
-                                  Get.snackbar("Warning!", e.code);
-                                }
+                                signIn();
                               }
                             }
                           }

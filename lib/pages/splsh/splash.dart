@@ -63,58 +63,49 @@ class Splash extends StatelessWidget {
               right: 10,
               left: 10,
               child: (FirebaseAuth.instance.currentUser != null)
-                  ? new FutureBuilder<bool>(
-                      future:
-                          hasUserData(user: FirebaseAuth.instance.currentUser),
-                      builder: (context, snapshot) {
-                        if (snapshot.data == true) {
-                          Future.microtask(() => Get.offAllNamed("/home"));
+                  ? new Builder(
+                  builder: (context) {
+                    Future.microtask(() async {
+                      try {
+                        DocumentSnapshot<Map<String,
+                            dynamic>> snapshot = await FirebaseFirestore
+                            .instance
+                            .collection("users")
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .get();
+                        if (snapshot.data() != null &&
+                            snapshot.data()!.isNotEmpty) {
+                          Get.offAllNamed("/home");
                         } else {
-                          Future.microtask(
-                              () => Get.offAllNamed("/userInfoUpdate"));
+                          Get.offAllNamed("/userInfoUpdate");
                         }
-                        return new Center(
-                          child: new CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
-                        );
-                      })
-                  : new MyFilledButton(
-                      child: new Text(
-                        "Get Started",
-                        style: new TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2.0,
-                        ),
+                      } on FirebaseException catch (e) {
+                        Get.snackbar("Warning!", "${e.code}. Please restart your App");
+                      }
+                    });
+                    return new Center(
+                      child: new CircularProgressIndicator(
+                        color: Colors.white,
                       ),
-                      size: new Size(double.infinity, 0),
-                      function: () => Get.toNamed("/boarding"),
-                      borderRadius: 10,
-                    ),
+                    );
+                  })
+                  : new MyFilledButton(
+                child: new Text(
+                  "Get Started",
+                  style: new TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+                size: new Size(double.infinity, 0),
+                function: () => Get.toNamed("/boarding"),
+                borderRadius: 10,
+              ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Future<bool> hasUserData({required User? user}) async {
-    bool hasData = false;
-    try {
-      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-          .instance
-          .collection("users")
-          .doc(user!.uid)
-          .get();
-      if (snapshot.data() != null && snapshot.data()!.isNotEmpty) {
-        hasData = true;
-      } else {
-        hasData = false;
-      }
-    } on FirebaseException catch (e) {
-      Get.snackbar("Warning!", e.code);
-    }
-    return hasData;
   }
 }
