@@ -34,7 +34,6 @@ class Splash extends StatelessWidget {
             ),
             new Center(
               child: new Column(
-                //icon, label and progressbar
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   new SvgPicture.asset(
@@ -63,45 +62,46 @@ class Splash extends StatelessWidget {
               right: 10,
               left: 10,
               child: (FirebaseAuth.instance.currentUser != null)
-                  ? new Builder(
-                  builder: (context) {
-                    Future.microtask(() async {
-                      try {
-                        DocumentSnapshot<Map<String,
-                            dynamic>> snapshot = await FirebaseFirestore
-                            .instance
-                            .collection("users")
-                            .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .get();
-                        if (snapshot.data() != null &&
-                            snapshot.data()!.isNotEmpty) {
-                          Get.offAllNamed("/home");
-                        } else {
-                          Get.offAllNamed("/userInfoUpdate");
+                  ? new Builder(builder: (context) {
+                      Future.microtask(() async {
+                        try {
+                          DocumentSnapshot<Map<String, dynamic>> snapshot =
+                              await FirebaseFirestore.instance
+                                  .collection("users")
+                                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                                  .get();
+                          if (snapshot.data() != null &&
+                              snapshot.data()!.isNotEmpty) {
+                            Get.offAllNamed("/");
+                          } else {
+                            Get.offAllNamed("/userInfoUpdate");
+                          }
+                        } on FirebaseException catch (e) {
+                          Get.snackbar(
+                              "Warning!", "${e.code}. Please restart your App");
+
+                          return new SizedBox();
                         }
-                      } on FirebaseException catch (e) {
-                        Get.snackbar("Warning!", "${e.code}. Please restart your App");
-                      }
-                    });
-                    return new Center(
-                      child: new CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    );
-                  })
+                      });
+                      return new Center(
+                        child: new CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      );
+                    })
                   : new MyFilledButton(
-                child: new Text(
-                  "Get Started",
-                  style: new TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-                size: new Size(double.infinity, 0),
-                function: () => Get.toNamed("/boarding"),
-                borderRadius: 10,
-              ),
+                      child: new Text(
+                        "Get Started",
+                        style: new TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                        ),
+                      ),
+                      size: new Size(double.infinity, 0),
+                      function: () => Get.toNamed("/boarding"),
+                      borderRadius: 10,
+                    ),
             ),
           ],
         ),

@@ -34,7 +34,6 @@ class _AuthenticationState extends State<Authentication> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _phoneController.dispose();
     _codeController.dispose();
 
@@ -78,7 +77,7 @@ class _AuthenticationState extends State<Authentication> {
                     height: 20,
                   ),
                   new Text(
-                    "We will send you a 6-digits verification code to this number",
+                    "We ${(authState == AuthState.codeSent) ? "have sent" : "will send"} you a 6-digits verification code to this number",
                     style: new TextStyle(
                       color: Colors.black,
                       letterSpacing: 1.25,
@@ -113,7 +112,9 @@ class _AuthenticationState extends State<Authentication> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         hintText: "Phone No",
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
                         prefixIcon: new Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -141,8 +142,13 @@ class _AuthenticationState extends State<Authentication> {
                                     }
                                   },
                             child: (authState == AuthState.sendingCode)
-                                ? CircularProgressIndicator(
-                                    color: new Color(0xFFFF2156),
+                                ? new Text(
+                                    "Sending...",
+                                    style: new TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 1.25,
+                                    ),
                                   )
                                 : new Text(
                                     (authState == AuthState.codeSent)
@@ -294,7 +300,6 @@ class _AuthenticationState extends State<Authentication> {
                   .doc(userCredential.user!.uid)
                   .get();
           if (snapshot.data() != null && snapshot.data()!.isNotEmpty) {
-            //data exist
             Navigator.pop(context);
             Get.offAllNamed("/");
           } else {

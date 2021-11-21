@@ -7,7 +7,5 @@ class AuthProvider {
     required this.firebaseAuth,
   });
 
-  get authState => firebaseAuth.authStateChanges();
-
-
+  Stream<User?> get authState => firebaseAuth.authStateChanges();
 }
