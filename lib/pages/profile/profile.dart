@@ -1,10 +1,17 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 
+import 'dart:io';
+import 'package:blood_donation/components/dialogs/request_succesful.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
+import 'package:url_launcher/url_launcher.dart';
 
 class Profile extends StatelessWidget {
   final String uid;
@@ -54,11 +61,11 @@ class Profile extends StatelessWidget {
               horizontal: 20,
               vertical: 20,
             ),
-            child: new FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
+            child: new StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
                     .collection("users")
                     .doc(uid)
-                    .get(),
+                    .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return new Center(child: new Text("Error loading Data"));
@@ -67,404 +74,517 @@ class Profile extends StatelessWidget {
                     return new Center(
                         child: new Text("Document does not exist"));
                   }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return new Center(
+                      child: new CircularProgressIndicator(
+                        color: new Color(0xFFFF2156),
+                      ),
+                    );
+                  }
 
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    Map<String, dynamic> userData =
-                        snapshot.data!.data() as Map<String, dynamic>;
+                  Map<String, dynamic> userData =
+                      snapshot.data!.data() as Map<String, dynamic>;
 
-                    return new Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        new Container(
-                          decoration: new BoxDecoration(
-                            boxShadow: [
-                              new BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                offset: new Offset(10, 10),
-                                blurRadius: 40,
-                                spreadRadius: 10,
+                  return new Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      new Container(
+                        decoration: new BoxDecoration(
+                          boxShadow: [
+                            new BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              offset: new Offset(10, 10),
+                              blurRadius: 40,
+                              spreadRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: new Stack(
+                          children: [
+                            new ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: (userData["image"] != null)
+                                  ? new Image.network(
+                                      userData["image"],
+                                      fit: BoxFit.cover,
+                                      height: 150,
+                                      width: 150,
+                                    )
+                                  : new Icon(
+                                      Icons.account_box,
+                                      size: 150,
+                                      color: new Color(0xFFFF2156),
+                                    ),
+                            ),
+                            (FirebaseAuth.instance.currentUser!.uid == uid)
+                                ? new Positioned(
+                                    bottom: 5,
+                                    right: 5,
+                                    child: new Container(
+                                      decoration: new BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        border: Border.all(
+                                          color: new Color(0xFFFF2156),
+                                        ),
+                                      ),
+                                      child: new GestureDetector(
+                                        onTap: () async {
+                                          try {
+                                            XFile? file = await ImagePicker()
+                                                .pickImage(
+                                                    source:
+                                                        ImageSource.gallery);
+                                            Reference reference = FirebaseStorage
+                                                .instance
+                                                .ref("profileImagesOfUser")
+                                                .child(FirebaseAuth
+                                                    .instance.currentUser!.uid)
+                                                .child(
+                                                    "profileImage.${path.extension(file!.path)}");
+
+                                            await reference
+                                                .putFile(File(file.path));
+
+                                            String url = await reference
+                                                .getDownloadURL();
+
+                                            await FirebaseFirestore.instance
+                                                .collection("users")
+                                                .doc(uid)
+                                                .update({"image": url});
+
+                                            FirebaseAuth.instance.currentUser!
+                                                .updatePhotoURL(url);
+                                          } on FirebaseException catch (e) {
+                                            Get.snackbar("Warning!", e.code);
+                                          }
+                                        },
+                                        child: new Padding(
+                                          padding: const EdgeInsets.all(5),
+                                          child: new Icon(
+                                            Icons.camera_alt,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : new SizedBox(),
+                          ],
+                        ),
+                      ),
+                      new SizedBox(
+                        height: 20,
+                      ),
+                      new Text(
+                        userData["username"],
+                        style: new TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.50,
+                        ),
+                      ),
+                      new SizedBox(
+                        height: 10,
+                      ),
+                      new Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          new Icon(
+                            Icons.location_on,
+                            color: new Color(0xFFFF2156),
+                          ),
+                          new Text(
+                            "Location:",
+                            style: new TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                              letterSpacing: 1.25,
+                            ),
+                          ),
+                        ],
+                      ),
+                      new Text(
+                        userData["location"],
+                        style: new TextStyle(
+                          color: Colors.grey,
+                          fontSize: 18,
+                          letterSpacing: 1.25,
+                        ),
+                      ),
+                      new SizedBox(
+                        height: 40,
+                      ),
+                      (FirebaseAuth.instance.currentUser!.uid != uid)
+                          ? new Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                new ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding:
+                                        EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                    primary: Colors.grey,
+                                    shape: new RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    launch("tel:${userData["phone"]}");
+                                  },
+                                  child: new Row(
+                                    children: [
+                                      new Icon(Icons.call_outlined),
+                                      new SizedBox(
+                                        width: 10,
+                                      ),
+                                      new Text(
+                                        "Call Now",
+                                        style: new TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          letterSpacing: 1.25,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                new ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding:
+                                        EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                    primary: new Color(0xFFFF2156),
+                                    shape: new RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    String id =
+                                        DateTime.now().microsecond.toString();
+                                    Map<String, dynamic> request = {
+                                      "time": DateFormat('kk:mm')
+                                          .format(DateTime.now()),
+                                      "date": DateFormat('yyyy-MM-dd')
+                                          .format(DateTime.now()),
+                                      "catagory": "bloodRequest",
+                                      "uid": FirebaseAuth
+                                          .instance.currentUser!.uid,
+                                      "status": "unread",
+                                      "id": id,
+                                    };
+                                    try {
+                                      FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(uid)
+                                          .collection("notifications")
+                                          .doc(id)
+                                          .set(request)
+                                          .then((value) => showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (context) {
+                                                return new SuccessfulDialog();
+                                              }));
+                                    } on FirebaseException catch (e) {
+                                      Get.snackbar("Warning!", e.code);
+                                    }
+                                  },
+                                  child: new Row(
+                                    children: [
+                                      new Icon(Icons.screen_share_outlined),
+                                      new SizedBox(
+                                        width: 10,
+                                      ),
+                                      new Text(
+                                        "Request",
+                                        style: new TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          letterSpacing: 1.25,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          : new SizedBox(),
+                      new SizedBox(
+                        height: 20,
+                      ),
+                      new Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          new Card(
+                            elevation: 5,
+                            child: new Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: new Column(
+                                children: [
+                                  new Text(
+                                    userData["bloodGroup"],
+                                    style: new TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  new Text(
+                                    "blood Type",
+                                    style: new TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          new Card(
+                            elevation: 5,
+                            child: new Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: new Column(
+                                children: [
+                                  new Text(
+                                    userData["donated"].toString(),
+                                    style: new TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  new Text(
+                                    "Donated",
+                                    style: new TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          new Card(
+                            elevation: 5,
+                            child: new Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: new Column(
+                                children: [
+                                  new Text(
+                                    userData["requested"].toString(),
+                                    style: new TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  new Text(
+                                    "Requested",
+                                    style: new TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      new SizedBox(
+                        height: 20,
+                      ),
+                      new Card(
+                        elevation: 5,
+                        child: new Container(
+                          height: 50,
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          child: new Row(
+                            children: [
+                              new Icon(
+                                Icons.timelapse_outlined,
+                                color: new Color(0xFFFF2156),
+                              ),
+                              new SizedBox(
+                                width: 10,
+                              ),
+                              new Expanded(
+                                child: new Text("Available for Donate"),
+                              ),
+                              new FlutterSwitch(
+                                width: 60,
+                                activeColor: new Color(0xFFFF2156),
+                                value: userData["isAvailable"],
+                                onToggle: (isOpen) async {
+                                  if (FirebaseAuth.instance.currentUser!.uid ==
+                                      uid) {
+                                    try {
+                                      await FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(uid)
+                                          .update({"isAvailable": isOpen});
+                                    } on FirebaseException catch (e) {
+                                      Get.snackbar("Warning!", e.code);
+                                    }
+                                  }
+                                },
                               ),
                             ],
                           ),
-                          child: new ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: (userData["image"] != "default")
-                                ? new Image.network(
-                                    userData["image"],
-                                    fit: BoxFit.cover,
-                                    height: 150,
-                                    width: 150,
-                                  )
-                                : new Icon(
-                                    Icons.account_circle,
-                                    size: 150,
-                                    color: new Color(0xFFFF2156),
-                                  ),
-                          ),
                         ),
-                        new SizedBox(
-                          height: 20,
-                        ),
-                        new Text(
-                          userData["username"],
-                          style: new TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.50,
-                          ),
-                        ),
-                        new SizedBox(
-                          height: 10,
-                        ),
-                        new Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            new Icon(
-                              Icons.location_on,
-                              color: new Color(0xFFFF2156),
-                            ),
-                            new Text(
-                              userData["location"],
-                              style: new TextStyle(
-                                color: Colors.grey,
-                                fontSize: 18,
-                                letterSpacing: 1.25,
-                              ),
-                            ),
-                          ],
-                        ),
-                        new SizedBox(
-                          height: 40,
-                        ),
-                        new Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            new ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                primary: Colors.grey,
-                                shape: new RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                              ),
-                              onPressed: () {},
-                              child: new Row(
-                                children: [
-                                  new Icon(Icons.call_outlined),
-                                  new SizedBox(
-                                    width: 10,
-                                  ),
-                                  new Text(
-                                    "Call Now",
-                                    style: new TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      letterSpacing: 1.25,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            new ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                primary: new Color(0xFFFF2156),
-                                shape: new RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                              ),
-                              onPressed: () {},
-                              child: new Row(
-                                children: [
-                                  new Icon(Icons.screen_share_outlined),
-                                  new SizedBox(
-                                    width: 10,
-                                  ),
-                                  new Text(
-                                    "Request",
-                                    style: new TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      letterSpacing: 1.25,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        new SizedBox(
+                      ),
+                      new SizedBox(
+                        height: 10,
+                      ),
+                      new Card(
+                        elevation: 5,
+                        child: new Container(
                           height: 50,
-                        ),
-                        new Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            new Card(
-                              elevation: 5,
-                              child: new Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: new Column(
-                                  children: [
-                                    new Text(
-                                      userData["bloodGroup"],
-                                      style: new TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    new Text(
-                                      "blood Type",
-                                      style: new TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          child: new Row(
+                            children: [
+                              new Icon(
+                                Icons.share_outlined,
+                                color: new Color(0xFFFF2156),
                               ),
-                            ),
-                            new Card(
-                              elevation: 5,
-                              child: new Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: new Column(
-                                  children: [
-                                    new Text(
-                                      userData["donated"].toString(),
-                                      style: new TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    new Text(
-                                      "Donated",
-                                      style: new TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              new SizedBox(
+                                width: 10,
                               ),
-                            ),
-                            new Card(
-                              elevation: 5,
-                              child: new Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: new Column(
-                                  children: [
-                                    new Text(
-                                      userData["requested"].toString(),
-                                      style: new TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    new Text(
-                                      "Requested",
-                                      style: new TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              new Expanded(
+                                child: new Text("Invite a friend"),
                               ),
-                            ),
-                          ],
-                        ),
-                        new SizedBox(
-                          height: 20,
-                        ),
-                        new Card(
-                          elevation: 5,
-                          child: new Container(
-                            height: 50,
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: new Row(
-                              children: [
-                                new Icon(
-                                  Icons.timelapse_outlined,
-                                  color: new Color(0xFFFF2156),
-                                ),
-                                new SizedBox(
-                                  width: 10,
-                                ),
-                                new Expanded(
-                                  child: new Text("Available for Donate"),
-                                ),
-                                new FlutterSwitch(
-                                  width: 60,
-                                  activeColor: new Color(0xFFFF2156),
-                                  value: userData["isAvailable"],
-                                  onToggle: (isOpen) {},
-                                ),
-                              ],
-                            ),
+                            ],
                           ),
                         ),
-                        new SizedBox(
-                          height: 10,
-                        ),
-                        new Card(
-                          elevation: 5,
-                          child: new Container(
-                            height: 50,
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: new Row(
-                              children: [
-                                new Icon(
-                                  Icons.share_outlined,
-                                  color: new Color(0xFFFF2156),
-                                ),
-                                new SizedBox(
-                                  width: 10,
-                                ),
-                                new Expanded(
-                                  child: new Text("Invite a friend"),
-                                ),
-                              ],
-                            ),
+                      ),
+                      new SizedBox(
+                        height: 10,
+                      ),
+                      new Card(
+                        elevation: 5,
+                        child: new Container(
+                          height: 50,
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          child: new Row(
+                            children: [
+                              new Icon(
+                                Icons.help_outline,
+                                color: new Color(0xFFFF2156),
+                              ),
+                              new SizedBox(
+                                width: 10,
+                              ),
+                              new Expanded(
+                                child: new Text("Get help"),
+                              ),
+                            ],
                           ),
                         ),
-                        new SizedBox(
-                          height: 10,
-                        ),
-                        new Card(
-                          elevation: 5,
-                          child: new Container(
-                            height: 50,
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: new Row(
-                              children: [
-                                new Icon(
-                                  Icons.help_outline,
-                                  color: new Color(0xFFFF2156),
-                                ),
-                                new SizedBox(
-                                  width: 10,
-                                ),
-                                new Expanded(
-                                  child: new Text("Get help"),
-                                ),
-                              ],
-                            ),
+                      ),
+                      new SizedBox(
+                        height: 10,
+                      ),
+                      new Card(
+                        elevation: 5,
+                        child: new Container(
+                          height: 50,
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
                           ),
-                        ),
-                        new SizedBox(
-                          height: 10,
-                        ),
-                        new Card(
-                          elevation: 5,
-                          child: new Container(
-                            height: 50,
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: new GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return new AlertDialog(
-                                        shape: new RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        title: new Row(
-                                          children: [
-                                            new Icon(
-                                              Icons.warning,
-                                              color: Colors.amber,
-                                            ),
-                                            new SizedBox(
-                                              width: 10,
-                                            ),
-                                            new Text("Warning!"),
-                                          ],
-                                        ),
-                                        content: new Text(
-                                            "Do you want to Sign out?"),
-                                        actions: [
-                                          new ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              primary: Colors.white,
-                                              elevation: 0,
-                                            ),
-                                            onPressed: () {
-                                              FirebaseAuth.instance.signOut();
-                                              Get.offAllNamed(
-                                                  "/authentication");
-                                            },
-                                            child: new Text(
-                                              "Sign out",
-                                              style: new TextStyle(
-                                                color: new Color(0xFFFF2156),
-                                              ),
-                                            ),
+                          child: new GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return new AlertDialog(
+                                      shape: new RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      title: new Row(
+                                        children: [
+                                          new Icon(
+                                            Icons.warning,
+                                            color: Colors.amber,
                                           ),
-                                          new ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              primary: Colors.white,
-                                              elevation: 0,
-                                            ),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: new Text(
-                                              "Cancel",
-                                              style: new TextStyle(
-                                                color: new Color(0xFFFF2156),
-                                              ),
-                                            ),
+                                          new SizedBox(
+                                            width: 10,
                                           ),
+                                          new Text("Warning!"),
                                         ],
-                                      );
-                                    });
-                              },
-                              child: new Row(
-                                children: [
-                                  new Icon(
-                                    Icons.exit_to_app_outlined,
-                                    color: new Color(0xFFFF2156),
-                                  ),
-                                  new SizedBox(
-                                    width: 10,
-                                  ),
-                                  new Expanded(
-                                    child: new Text("Sign out"),
-                                  ),
-                                ],
-                              ),
+                                      ),
+                                      content:
+                                          new Text("Do you want to Sign out?"),
+                                      actions: [
+                                        new ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Colors.white,
+                                            elevation: 0,
+                                          ),
+                                          onPressed: () {
+                                            FirebaseAuth.instance.signOut();
+                                            Get.offAllNamed("/authentication");
+                                          },
+                                          child: new Text(
+                                            "Sign out",
+                                            style: new TextStyle(
+                                              color: new Color(0xFFFF2156),
+                                            ),
+                                          ),
+                                        ),
+                                        new ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Colors.white,
+                                            elevation: 0,
+                                          ),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: new Text(
+                                            "Cancel",
+                                            style: new TextStyle(
+                                              color: new Color(0xFFFF2156),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            },
+                            child: new Row(
+                              children: [
+                                new Icon(
+                                  Icons.exit_to_app_outlined,
+                                  color: new Color(0xFFFF2156),
+                                ),
+                                new SizedBox(
+                                  width: 10,
+                                ),
+                                new Expanded(
+                                  child: new Text("Sign out"),
+                                ),
+                              ],
                             ),
                           ),
-                        )
-                      ],
-                    );
-                  }
-                  return new Center(
-                    child: new CircularProgressIndicator(
-                      color: new Color(0xFFFF2156),
-                    ),
+                        ),
+                      )
+                    ],
                   );
                 }),
           ),

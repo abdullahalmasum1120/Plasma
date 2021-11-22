@@ -5,7 +5,6 @@ import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/filled_Button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -221,7 +220,6 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
                       function: () {
                         if (_formKey.currentState!.validate()) {
                           _updateUserInfo(
-                            image: "default",
                             username: usernameController.text.trim(),
                             email: emailController.text.trim(),
                             bloodGroup: _selectedBloodGroup,
@@ -248,7 +246,6 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
   }
 
   void _updateUserInfo({
-    required String image,
     required String username,
     required String email,
     required String bloodGroup,
@@ -266,12 +263,14 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
       "email": email,
       "bloodGroup": bloodGroup,
       "location": location,
-      "image": image,
+      "image": null,
       "registrationTime": registrationTime,
       "registrationDate": registrationDate,
       "donated": 0,
       "requested": 0,
       "isAvailable": false,
+      "phone": FirebaseAuth.instance.currentUser!.phoneNumber,
+      "uid": FirebaseAuth.instance.currentUser!.uid,
     };
     try {
       if (FirebaseAuth.instance.currentUser != null) {
