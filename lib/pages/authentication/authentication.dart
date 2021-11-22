@@ -228,6 +228,9 @@ class _AuthenticationState extends State<Authentication> {
                                     });
 
                                 signIn();
+                              } else {
+                                Get.snackbar("Warning!",
+                                    "Something went wrong, Try again after some time.");
                               }
                             }
                           }

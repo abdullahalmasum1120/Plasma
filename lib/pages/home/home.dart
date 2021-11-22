@@ -20,7 +20,6 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return new Scaffold(
       backgroundColor: Colors.white,
-      drawer: new Drawer(),
       appBar: new MyAppBar(context: context),
       body: new MyBody(context: context),
       floatingActionButton: new FloatingActionButton(

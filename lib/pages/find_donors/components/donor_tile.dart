@@ -19,7 +19,9 @@ class DonorTile extends StatelessWidget {
           context,
           new MaterialPageRoute(
             builder: (context) {
-              return new Profile(userData: donorInfo);
+              return new Profile(
+                uid: "",
+              );
             },
           ),
         );

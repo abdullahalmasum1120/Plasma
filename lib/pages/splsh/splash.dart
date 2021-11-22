@@ -79,7 +79,6 @@ class Splash extends StatelessWidget {
                         } on FirebaseException catch (e) {
                           Get.snackbar(
                               "Warning!", "${e.code}. Please restart your App");
-
                           return new SizedBox();
                         }
                       });
