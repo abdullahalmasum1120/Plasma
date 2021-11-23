@@ -1,12 +1,13 @@
 // ignore_for_file: unnecessary_new, prefer_const_constructors
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class MyListCard extends StatelessWidget {
   final BuildContext context;
   final int index;
-  final Map requestData;
+  final QueryDocumentSnapshot<Map<String, dynamic>> requestData;
 
   const MyListCard({
     Key? key,
@@ -38,16 +39,15 @@ class MyListCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         new Text(
-                          "Name",
+                          "Location",
                           style: new TextStyle(
                             color: Colors.grey,
                             letterSpacing: 1.25,
                             fontSize: 18,
-
                           ),
                         ),
                         new Text(
-                          requestData["name"],
+                          requestData["location"],
                           style: new TextStyle(
                             color: Colors.black,
                             letterSpacing: 1.25,
@@ -64,16 +64,15 @@ class MyListCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         new Text(
-                          "Location",
+                          "Hospital",
                           style: new TextStyle(
                             color: Colors.grey,
                             letterSpacing: 1.25,
                             fontSize: 18,
-
                           ),
                         ),
                         new Text(
-                          requestData["location"],
+                          requestData["hospital"],
                           style: new TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -87,12 +86,11 @@ class MyListCard extends StatelessWidget {
                   new Container(
                     padding: EdgeInsets.all(10),
                     child: new Text(
-                      requestData["time"],
+                      requestData["requestedTime"],
                       style: new TextStyle(
                         color: Colors.grey,
                         letterSpacing: 1.25,
                         fontSize: 15,
-
                       ),
                     ),
                   ),
@@ -138,9 +136,7 @@ class MyListCard extends StatelessWidget {
                     height: 20,
                   ),
                   new GestureDetector(
-                    onTap: (){
-
-                    },
+                    onTap: () {},
                     child: new Text(
                       "Donate",
                       style: new TextStyle(

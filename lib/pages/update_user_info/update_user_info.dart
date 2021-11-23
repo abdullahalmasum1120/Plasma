@@ -279,6 +279,8 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .set(userInfo)
             .then((value) => {
+                  FirebaseAuth.instance.currentUser!
+                      .updateDisplayName(username),
                   Navigator.pop(context),
                   Get.offAllNamed("/"),
                 });

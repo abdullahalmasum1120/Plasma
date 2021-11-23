@@ -3,7 +3,6 @@
 import 'package:blood_donation/pages/authentication/authentication.dart';
 import 'package:blood_donation/pages/bording/boarding.dart';
 import 'package:blood_donation/pages/home/home.dart';
-import 'package:blood_donation/pages/profile/profile.dart';
 import 'package:blood_donation/pages/splsh/splash.dart';
 import 'package:blood_donation/pages/update_user_info/update_user_info.dart';
 import 'package:firebase_core/firebase_core.dart';

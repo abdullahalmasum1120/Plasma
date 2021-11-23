@@ -52,6 +52,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                   snapshot.data!.docs;
 
               int unread = 0;
+
               for (var i in notifications) {
                 if (i["status"] == "unread") {
                   unread++;
@@ -64,6 +65,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 },
                 icon: new Badge(
                   badgeContent: new Text(unread.toString()),
+                  showBadge: (unread != 0),
                   child: new Icon(
                     Icons.notifications_outlined,
                     color: Colors.black,

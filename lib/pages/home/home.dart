@@ -1,6 +1,6 @@
 // ignore_for_file: unnecessary_new, prefer_const_constructors
 
-import 'package:blood_donation/components/dialogs/blood_request_dialog.dart';
+import 'package:blood_donation/pages/home/components/blood_request_dialog.dart';
 import 'package:blood_donation/pages/home/components/appbar.dart';
 import 'package:blood_donation/pages/home/components/body.dart';
 import 'package:flutter/material.dart';
