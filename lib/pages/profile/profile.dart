@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 
 import 'dart:io';
+import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/dialogs/request_succesful.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 class Profile extends StatelessWidget {
   final String uid;
@@ -259,34 +261,53 @@ class Profile extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(50),
                                     ),
                                   ),
-                                  onPressed: () {
-                                    String id =
-                                        DateTime.now().microsecond.toString();
-                                    Map<String, dynamic> request = {
+                                  onPressed: () async {
+                                    showDialog(
+                                        barrierDismissible: false,
+                                        context: context,
+                                        builder: (context) {
+                                          return new Loading();
+                                        });
+                                    String id = Uuid().v1();
+
+                                    Map<String, dynamic> receivedRequest = {
                                       "time": DateFormat('kk:mm')
                                           .format(DateTime.now()),
                                       "date": DateFormat('yyyy-MM-dd')
                                           .format(DateTime.now()),
-                                      "catagory": "bloodRequest",
                                       "uid": FirebaseAuth
                                           .instance.currentUser!.uid,
                                       "status": "unread",
-                                      "id": id,
+                                      "docId": id,
+                                    };
+                                    Map<String, dynamic> sentRequest = {
+                                      "uid": uid,
+                                      "status": "unread",
+                                      "docId": id,
                                     };
                                     try {
-                                      FirebaseFirestore.instance
+                                      await FirebaseFirestore.instance
                                           .collection("users")
                                           .doc(uid)
-                                          .collection("notifications")
+                                          .collection("recievedRequests")
                                           .doc(id)
-                                          .set(request)
-                                          .then((value) => showDialog(
-                                              barrierDismissible: false,
-                                              context: context,
-                                              builder: (context) {
-                                                return new SuccessfulDialog();
-                                              }));
+                                          .set(receivedRequest);
+                                      await FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                          .collection("sentRequests")
+                                          .doc(id)
+                                          .set(sentRequest);
+                                      Navigator.pop(context);
+                                      showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder: (context) {
+                                            return new SuccessfulDialog();
+                                          });
                                     } on FirebaseException catch (e) {
+                                      Navigator.pop(context);
                                       Get.snackbar("Warning!", e.code);
                                     }
                                   },
@@ -532,34 +553,38 @@ class Profile extends StatelessWidget {
                                       content:
                                           new Text("Do you want to Sign out?"),
                                       actions: [
-                                        new ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            primary: Colors.white,
-                                            elevation: 0,
-                                          ),
-                                          onPressed: () {
+                                        new GestureDetector(
+                                          onTap: () {
                                             FirebaseAuth.instance.signOut();
                                             Get.offAllNamed("/authentication");
                                           },
-                                          child: new Text(
-                                            "Sign out",
-                                            style: new TextStyle(
-                                              color: new Color(0xFFFF2156),
+                                          child: new Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 10,
+                                            ),
+                                            child: new Text(
+                                              "Sign out",
+                                              style: new TextStyle(
+                                                color: new Color(0xFFFF2156),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                        new ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            primary: Colors.white,
-                                            elevation: 0,
-                                          ),
-                                          onPressed: () {
+                                        new GestureDetector(
+                                          onTap: () {
                                             Navigator.pop(context);
                                           },
-                                          child: new Text(
-                                            "Cancel",
-                                            style: new TextStyle(
-                                              color: new Color(0xFFFF2156),
+                                          child: new Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 10,
+                                            ),
+                                            child: new Text(
+                                              "Cancel",
+                                              style: new TextStyle(
+                                                color: new Color(0xFFFF2156),
+                                              ),
                                             ),
                                           ),
                                         ),
