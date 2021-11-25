@@ -26,7 +26,7 @@ class DataLists {
     {
       "src": "assets/icons/campaign.svg",
       "label": "Campaign",
-      "onTap": null,
+      "onTap": DonorList(),
     },
   ];
   static final List<Map> _requestList = [
