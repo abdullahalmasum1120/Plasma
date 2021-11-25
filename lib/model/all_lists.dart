@@ -12,16 +12,6 @@ class DataLists {
       "onTap": new DonorList(),
     },
     {
-      "src": "assets/icons/donate.svg",
-      "label": "Donates",
-      "onTap": new DonorList(),
-    },
-    {
-      "src": "assets/icons/other_bloods.svg",
-      "label": "Other Bloods",
-      "onTap": new DonorList(),
-    },
-    {
       "src": "assets/icons/assistant.svg",
       "label": "Assistant",
       "onTap": new Assistant(),
@@ -36,7 +26,7 @@ class DataLists {
     {
       "src": "assets/icons/campaign.svg",
       "label": "Campaign",
-      "onTap": new DonorList(),
+      "onTap": null,
     },
   ];
   static final List<Map> _requestList = [

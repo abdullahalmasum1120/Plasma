@@ -59,10 +59,7 @@ class Profile extends StatelessWidget {
         width: double.infinity,
         child: new SingleChildScrollView(
           child: new Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 20,
-            ),
+            padding: const EdgeInsets.all(10),
             child: new StreamBuilder<DocumentSnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection("users")
@@ -198,7 +195,7 @@ class Profile extends StatelessWidget {
                             color: new Color(0xFFFF2156),
                           ),
                           new Text(
-                            "Location:",
+                            "Location",
                             style: new TextStyle(
                               color: Colors.black,
                               fontSize: 18,
@@ -336,10 +333,10 @@ class Profile extends StatelessWidget {
                         height: 20,
                       ),
                       new Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           new Card(
-                            elevation: 5,
+                            elevation: 2,
                             child: new Padding(
                               padding: const EdgeInsets.all(10),
                               child: new Column(
@@ -364,7 +361,7 @@ class Profile extends StatelessWidget {
                             ),
                           ),
                           new Card(
-                            elevation: 5,
+                            elevation: 2,
                             child: new Padding(
                               padding: const EdgeInsets.all(10),
                               child: new Column(
@@ -389,7 +386,7 @@ class Profile extends StatelessWidget {
                             ),
                           ),
                           new Card(
-                            elevation: 5,
+                            elevation: 2,
                             child: new Padding(
                               padding: const EdgeInsets.all(10),
                               child: new Column(
@@ -419,7 +416,7 @@ class Profile extends StatelessWidget {
                         height: 20,
                       ),
                       new Card(
-                        elevation: 5,
+                        elevation: 2,
                         child: new Container(
                           height: 50,
                           width: double.infinity,
@@ -465,7 +462,7 @@ class Profile extends StatelessWidget {
                         height: 10,
                       ),
                       new Card(
-                        elevation: 5,
+                        elevation: 2,
                         child: new Container(
                           height: 50,
                           width: double.infinity,
@@ -493,7 +490,7 @@ class Profile extends StatelessWidget {
                         height: 10,
                       ),
                       new Card(
-                        elevation: 5,
+                        elevation: 2,
                         child: new Container(
                           height: 50,
                           width: double.infinity,
@@ -521,7 +518,7 @@ class Profile extends StatelessWidget {
                         height: 10,
                       ),
                       new Card(
-                        elevation: 5,
+                        elevation: 2,
                         child: new Container(
                           height: 50,
                           width: double.infinity,

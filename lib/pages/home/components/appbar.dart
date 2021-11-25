@@ -64,7 +64,13 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                   Get.to(() => new Notifications());
                 },
                 icon: new Badge(
-                  badgeContent: new Text(unread.toString()),
+                  badgeColor: new Color(0xFFFF2156),
+                  badgeContent: new Text(
+                    unread.toString(),
+                    style: new TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                   showBadge: (unread != 0),
                   child: new Icon(
                     Icons.notifications_outlined,
@@ -74,8 +80,11 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               );
             }),
-        new IconButton(
-          onPressed: () {
+        new SizedBox(
+          width: 10,
+        ),
+        new GestureDetector(
+          onTap: () {
             Navigator.push(
               context,
               new MaterialPageRoute(
@@ -87,10 +96,21 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             );
           },
-          icon: new Icon(
-            Icons.account_circle_outlined,
-            color: Colors.black,
-            size: 30,
+          child: new CircleAvatar(
+            radius: 16,
+            backgroundColor: Colors.transparent,
+            child: (FirebaseAuth.instance.currentUser!.photoURL == null)
+                ? new Icon(
+                    Icons.account_circle_outlined,
+                    color: Colors.black,
+                    size: 30,
+                  )
+                : null,
+            backgroundImage:
+                (FirebaseAuth.instance.currentUser!.photoURL != null)
+                    ? new NetworkImage(
+                        FirebaseAuth.instance.currentUser!.photoURL.toString())
+                    : null,
           ),
         ),
         new SizedBox(

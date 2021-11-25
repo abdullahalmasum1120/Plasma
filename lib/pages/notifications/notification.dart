@@ -56,6 +56,12 @@ class Notifications extends StatelessWidget {
                 ),
               );
             }
+
+            if (snapshot.data!.docs.isEmpty) {
+              return new Center(
+                child: new Text("No Notifications"),
+              );
+            }
             List<QueryDocumentSnapshot<Map<String, dynamic>>> notifications =
                 snapshot.data!.docs;
             return new ListView.builder(

@@ -331,6 +331,11 @@ class _BloodRequestDialogState extends State<BloodRequestDialog> {
       "id": id,
       "uid": FirebaseAuth.instance.currentUser!.uid,
     };
+    Map<String, dynamic> sentRequest = {
+      "uid": null,
+      "status": null,
+      "docId": id,
+    };
 
     try {
       await FirebaseFirestore.instance
@@ -340,6 +345,12 @@ class _BloodRequestDialogState extends State<BloodRequestDialog> {
           .then((value) {
         Navigator.pop(context);
       });
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("sentRequests")
+          .doc(id)
+          .set(sentRequest);
       Navigator.pop(context);
       showDialog(
           context: context,

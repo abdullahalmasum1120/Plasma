@@ -22,16 +22,18 @@ class MyGridCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          new MaterialPageRoute(
-            builder: (context) {
-              return widgetToNavigate;
+      onTap: (label != "Find Donors")
+          ? null
+          : () {
+              Navigator.push(
+                context,
+                new MaterialPageRoute(
+                  builder: (context) {
+                    return widgetToNavigate;
+                  },
+                ),
+              );
             },
-          ),
-        );
-      },
       child: new Card(
         elevation: 2,
         shape: new RoundedRectangleBorder(
@@ -49,9 +51,11 @@ class MyGridCard extends StatelessWidget {
               new Expanded(
                 flex: 1,
                 child: new Text(
-                  label,
+                  (label != "Find Donors") ? "$label\n(Comming soon)" : label,
                   textAlign: TextAlign.center,
                   style: new TextStyle(
+                    color:
+                        (label != "Find Donors") ? Colors.green : Colors.grey,
                     letterSpacing: 1.25,
                     fontWeight: FontWeight.bold,
                   ),

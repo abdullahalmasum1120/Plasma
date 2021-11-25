@@ -53,6 +53,7 @@ class _MyBodyState extends State<MyBody> {
               ),
             );
           }
+
           List<QueryDocumentSnapshot<Map<String, dynamic>>> requests =
               snapshot.data!.docs;
           return new CustomScrollView(
@@ -159,18 +160,24 @@ class _MyBodyState extends State<MyBody> {
               ),
               new SliverPadding(
                 padding: EdgeInsets.all(10),
-                sliver: new SliverList(
-                  delegate: new SliverChildBuilderDelegate(
-                    (context, index) {
-                      return new MyListCard(
-                        context: context,
-                        index: index,
-                        requestData: requests[index],
-                      );
-                    },
-                    childCount: requests.length,
-                  ),
-                ),
+                sliver: (requests.isEmpty)
+                    ? new SliverToBoxAdapter(
+                        child: new Center(
+                          child: new Text("No new request found"),
+                        ),
+                      )
+                    : new SliverList(
+                        delegate: new SliverChildBuilderDelegate(
+                          (context, index) {
+                            return new MyListCard(
+                              context: context,
+                              index: index,
+                              requestData: requests[index],
+                            );
+                          },
+                          childCount: requests.length,
+                        ),
+                      ),
               ),
             ],
           );

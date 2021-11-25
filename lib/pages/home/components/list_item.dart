@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MyListCard extends StatelessWidget {
   final BuildContext context;
@@ -19,11 +20,13 @@ class MyListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Card(
-      elevation: 5,
+      margin: EdgeInsets.zero,
+      elevation: 2,
       shape: new RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Container(
+      child: new Container(
+        padding: EdgeInsets.all(10),
         color: Colors.white,
         child: new Row(
           children: [
@@ -31,67 +34,63 @@ class MyListCard extends StatelessWidget {
               flex: 2,
               child: new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  new Container(
-                    padding: EdgeInsets.all(10),
-                    child: new Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        new Text(
-                          "Location",
-                          style: new TextStyle(
-                            color: Colors.grey,
-                            letterSpacing: 1.25,
-                            fontSize: 18,
-                          ),
+                  new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      new Text(
+                        "Location",
+                        style: new TextStyle(
+                          color: Colors.grey,
+                          letterSpacing: 1.25,
+                          fontSize: 16,
                         ),
-                        new Text(
-                          requestData["location"],
-                          style: new TextStyle(
-                            color: Colors.black,
-                            letterSpacing: 1.25,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  new Container(
-                    padding: EdgeInsets.all(10),
-                    child: new Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        new Text(
-                          "Hospital",
-                          style: new TextStyle(
-                            color: Colors.grey,
-                            letterSpacing: 1.25,
-                            fontSize: 18,
-                          ),
-                        ),
-                        new Text(
-                          requestData["hospital"],
-                          style: new TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            letterSpacing: 1.25,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  new Container(
-                    padding: EdgeInsets.all(10),
-                    child: new Text(
-                      requestData["requestedTime"],
-                      style: new TextStyle(
-                        color: Colors.grey,
-                        letterSpacing: 1.25,
-                        fontSize: 15,
                       ),
+                      new Text(
+                        requestData["location"],
+                        style: new TextStyle(
+                          color: Colors.black,
+                          letterSpacing: 1.25,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  new SizedBox(
+                    height: 10,
+                  ),
+                  new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      new Text(
+                        "Hospital",
+                        style: new TextStyle(
+                          color: Colors.grey,
+                          letterSpacing: 1.25,
+                          fontSize: 16,
+                        ),
+                      ),
+                      new Text(
+                        requestData["hospital"],
+                        style: new TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          letterSpacing: 1.25,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  new SizedBox(
+                    height: 20,
+                  ),
+                  new Text(
+                    requestData["requestedTime"],
+                    style: new TextStyle(
+                      color: Colors.grey,
+                      letterSpacing: 1.25,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -103,29 +102,31 @@ class MyListCard extends StatelessWidget {
                 children: [
                   new Stack(
                     children: [
-                      Container(
-                        decoration: new BoxDecoration(boxShadow: [
-                          new BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: new Offset(8, 5),
-                          ),
-                        ]),
+                      new Container(
+                        decoration: new BoxDecoration(
+                          boxShadow: [
+                            new BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              blurRadius: 20,
+                              offset: new Offset(8, 5),
+                            ),
+                          ],
+                        ),
                         child: new SvgPicture.asset(
                           "assets/icons/drop.svg",
-                          height: 80,
-                          width: 80,
+                          height: 60,
+                          width: 60,
                           fit: BoxFit.cover,
                         ),
                       ),
                       new Positioned(
-                        top: 35,
-                        left: 15,
+                        top: 25,
+                        left: 10,
                         child: new Text(
                           requestData["bloodGroup"],
                           style: new TextStyle(
                             color: Colors.white,
-                            fontSize: 25,
+                            fontSize: 16,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -136,14 +137,16 @@ class MyListCard extends StatelessWidget {
                     height: 20,
                   ),
                   new GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      launch("tel:${requestData["phone"]}");
+                    },
                     child: new Text(
                       "Donate",
                       style: new TextStyle(
                         color: new Color(0xFFFF2156),
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 1.50,
+                        letterSpacing: 2,
                       ),
                     ),
                   ),
