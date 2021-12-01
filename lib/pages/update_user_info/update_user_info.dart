@@ -1,8 +1,10 @@
-// ignore_for_file: unnecessary_new, prefer_const_constructors
-
 import 'package:blood_donation/components/assentials/data_validator.dart';
+import 'package:blood_donation/components/constant/colors.dart';
+import 'package:blood_donation/components/constant/size.dart';
+import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/filled_Button.dart';
+import 'package:blood_donation/pages/home/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
@@ -20,16 +22,17 @@ class UpdateUserInfo extends StatefulWidget {
 }
 
 class _UpdateUserInfoState extends State<UpdateUserInfo> {
-  TextEditingController usernameController = new TextEditingController();
-  TextEditingController emailController = new TextEditingController();
-  TextEditingController locationController = new TextEditingController();
+  //controllers
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
 
+  //keys
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String _selectedBloodGroup = "default";
+  late String _selectedBloodGroup;
 
   @override
   void dispose() {
-    // TODO: implement dispose
     usernameController.dispose();
     emailController.dispose();
     locationController.dispose();
@@ -39,203 +42,199 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return new GestureDetector(
-      onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
-      child: new Scaffold(
-        backgroundColor: Colors.white,
-        body: new Center(
-          child: new SingleChildScrollView(
-            child: new Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-              ),
-              child: new Form(
-                key: _formKey,
-                child: new Column(
-                  children: [
-                    new SizedBox(
-                      height: 40,
-                    ),
-                    new SvgPicture.asset(
-                      "assets/icons/logo.svg",
-                      height: 100,
-                      width: 100,
-                    ),
-                    new SizedBox(
-                      height: 20,
-                    ),
-                    new Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        new Text(
-                          "Dare ",
-                          style: new TextStyle(
-                            color: new Color(0xFFFF2156),
-                            fontSize: 25,
+    return WillPopScope(
+      onWillPop: () async => false, //overriding system back button
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
+        child: Scaffold(
+          backgroundColor: MyColors.white,
+          body: Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(MySizes.defaultSpace),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: MySizes.defaultSpace * 1.5,
+                      ),
+                      SvgPicture.asset(
+                        "assets/icons/logo.svg",
+                        height: MySizes.largeIconSize,
+                        width: MySizes.largeIconSize,
+                      ),
+                      const SizedBox(
+                        height: MySizes.defaultSpace,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Text(
+                            "Dare ",
+                            style: TextStyle(
+                              color: MyColors.primary,
+                              fontSize: 24,
+                            ),
                           ),
-                        ),
-                        new Text(
-                          "To ",
-                          style: new TextStyle(
-                            color: new Color(0xFF000000),
-                            fontSize: 25,
+                          Text(
+                            "To ",
+                            style: TextStyle(
+                              color: MyColors.black,
+                              fontSize: 24,
+                            ),
                           ),
-                        ),
-                        new Text(
-                          "Donate ",
-                          style: new TextStyle(
-                            color: new Color(0xFFFF2156),
-                            fontSize: 25,
+                          Text(
+                            "Donate ",
+                            style: TextStyle(
+                              color: MyColors.primary,
+                              fontSize: 24,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    new SizedBox(
-                      height: 40,
-                    ),
-                    new TextFormField(
-                      validator: (username) {
-                        if (DataValidator.isValidateUsername(username!)) {
-                          return null;
-                        }
-                        return "Please Enter a valid Username";
-                      },
-                      keyboardType: TextInputType.name,
-                      controller: usernameController,
-                      decoration: new InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Your name",
-                        fillColor: new Color(0xFFF8F8F8),
-                        filled: true,
-                        prefixIcon: new Icon(
-                          Icons.account_circle_outlined,
-                          color: new Color(0xFFFF2156),
-                        ),
+                        ],
                       ),
-                    ),
-                    new SizedBox(
-                      height: 20,
-                    ),
-                    new TextFormField(
-                      validator: (email) {
-                        if (DataValidator.isValidateEmail(email!)) {
-                          return null;
-                        }
-                        return "Please Enter a valid Email";
-                      },
-                      controller: emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: new InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Email",
-                        fillColor: new Color(0xFFF8F8F8),
-                        filled: true,
-                        prefixIcon: new Icon(
-                          Icons.email_outlined,
-                          color: new Color(0xFFFF2156),
-                        ),
+                      const SizedBox(
+                        height: MySizes.defaultSpace * 2,
                       ),
-                    ),
-                    new SizedBox(
-                      height: 20,
-                    ),
-                    new TextFormField(
-                      validator: (location) {
-                        if (DataValidator.isValidateLocation(location!)) {
-                          return null;
-                        }
-                        return "Please Enter a valid Username";
-                      },
-                      controller: locationController,
-                      keyboardType: TextInputType.text,
-                      decoration: new InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Location",
-                        fillColor: new Color(0xFFF8F8F8),
-                        filled: true,
-                        prefixIcon: new Icon(
-                          Icons.location_city_outlined,
-                          color: new Color(0xFFFF2156),
-                        ),
-                      ),
-                    ),
-                    new SizedBox(
-                      height: 10,
-                    ),
-                    new DropdownButtonFormField<String>(
-                      validator: (bloodGroup) {
-                        if (bloodGroup != null) {
-                          return null;
-                        }
-                        return "Please Select Your Blood Group";
-                      },
-                      decoration: new InputDecoration(
-                        border: InputBorder.none,
-                        fillColor: new Color(0xFFF8F8F8),
-                        filled: true,
-                        prefixIcon: new Icon(
-                          Icons.bloodtype,
-                          color: new Color(0xFFFF2156),
-                        ),
-                      ),
-                      hint: new Text("Blood Group"),
-                      items: <String>[
-                        'A+',
-                        'A-',
-                        'B+',
-                        'B-',
-                        'O+',
-                        'O-',
-                        'AB+',
-                        'AB-',
-                      ].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          if (value != null) {
-                            _selectedBloodGroup = value;
+                      TextFormField(
+                        validator: (username) {
+                          if (DataValidator.isValidateUsername(username!)) {
+                            return null;
                           }
-                        });
-                      },
-                    ),
-                    new SizedBox(
-                      height: 50,
-                    ),
-                    new MyFilledButton(
-                      child: new Text(
-                        "UPDATE",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.bold,
+                          return "Please Enter a valid Username";
+                        },
+                        keyboardType: TextInputType.name,
+                        controller: usernameController,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "Your name",
+                          fillColor: MyColors.textFieldBackground,
+                          filled: true,
+                          prefixIcon: Icon(
+                            Icons.account_circle_outlined,
+                            color: MyColors.primary,
+                          ),
                         ),
                       ),
-                      size: new Size(double.infinity, 0),
-                      borderRadius: 10,
-                      function: () {
-                        if (_formKey.currentState!.validate()) {
-                          _updateUserInfo(
-                            username: usernameController.text.trim(),
-                            email: emailController.text.trim(),
-                            bloodGroup: _selectedBloodGroup,
-                            location: locationController.text.trim(),
-                            registrationTime:
-                                DateFormat('kk:mm').format(DateTime.now()),
-                            registrationDate:
-                                DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                      const SizedBox(
+                        height: MySizes.defaultSpace,
+                      ),
+                      TextFormField(
+                        validator: (email) {
+                          if (DataValidator.isValidateEmail(email!)) {
+                            return null;
+                          }
+                          return "Please Enter a valid Email";
+                        },
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "Email",
+                          fillColor: MyColors.textFieldBackground,
+                          filled: true,
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: MyColors.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: MySizes.defaultSpace,
+                      ),
+                      TextFormField(
+                        validator: (location) {
+                          if (DataValidator.isValidateLocation(location!)) {
+                            return null;
+                          }
+                          return "Please Enter a valid Username";
+                        },
+                        controller: locationController,
+                        keyboardType: TextInputType.text,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "Location",
+                          fillColor: MyColors.textFieldBackground,
+                          filled: true,
+                          prefixIcon: Icon(
+                            Icons.location_city_outlined,
+                            color: MyColors.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: MySizes.defaultSpace,
+                      ),
+                      DropdownButtonFormField<String>(
+                        validator: (bloodGroup) {
+                          if (bloodGroup != null) {
+                            return null;
+                          }
+                          return "Please Select Your Blood Group";
+                        },
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          fillColor: MyColors.textFieldBackground,
+                          filled: true,
+                          prefixIcon: Icon(
+                            Icons.bloodtype,
+                            color: MyColors.primary,
+                          ),
+                        ),
+                        hint: const Text("Blood Group"),
+                        items: <String>[
+                          'A+',
+                          'A-',
+                          'B+',
+                          'B-',
+                          'O+',
+                          'O-',
+                          'AB+',
+                          'AB-',
+                        ].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
                           );
-                        }
-                      },
-                    ),
-                    new SizedBox(
-                      height: 40,
-                    ),
-                  ],
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            if (value != null) {
+                              _selectedBloodGroup = value;
+                            }
+                          });
+                        },
+                      ),
+                      const SizedBox(
+                        height: MySizes.defaultSpace * 3,
+                      ),
+                      MyFilledButton(
+                        child: Text(
+                          "UPDATE",
+                          style: MyTextStyles(MyColors.white).buttonTextStyle,
+                        ),
+                        size: MySizes.maxButtonSize,
+                        borderRadius: MySizes.defaultRadius,
+                        function: () {
+                          if (_formKey.currentState!.validate()) {
+                            _updateUserInfo(
+                              username: usernameController.text.trim(),
+                              email: emailController.text.trim(),
+                              bloodGroup: _selectedBloodGroup,
+                              location: locationController.text.trim(),
+                              registrationTime:
+                                  DateFormat('kk:mm').format(DateTime.now()),
+                              registrationDate: DateFormat('yyyy-MM-dd')
+                                  .format(DateTime.now()),
+                            );
+                          }
+                        },
+                      ),
+                      const SizedBox(
+                        height: MySizes.defaultSpace * 2,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -256,7 +255,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
     showDialog(
         context: context,
         builder: (context) {
-          return Loading();
+          return const Loading();
         });
     Map<String, dynamic> userInfo = {
       "username": username,
@@ -282,7 +281,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
                   FirebaseAuth.instance.currentUser!
                       .updateDisplayName(username),
                   Navigator.pop(context),
-                  Get.offAllNamed("/"),
+                  Get.offAll(() => const Home()),
                 });
       }
     } on FirebaseAuthException catch (e) {

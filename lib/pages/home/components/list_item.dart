@@ -141,7 +141,7 @@ class MyListCard extends StatelessWidget {
                       launch("tel:${requestData["phone"]}");
                     },
                     child: new Text(
-                      "Donate",
+                      "Call Now",
                       style: new TextStyle(
                         color: new Color(0xFFFF2156),
                         fontSize: 20,

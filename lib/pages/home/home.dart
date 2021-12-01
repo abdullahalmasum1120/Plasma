@@ -3,6 +3,7 @@
 import 'package:blood_donation/pages/home/components/blood_request_dialog.dart';
 import 'package:blood_donation/pages/home/components/appbar.dart';
 import 'package:blood_donation/pages/home/components/body.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -20,7 +21,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return new Scaffold(
       backgroundColor: Colors.white,
-      appBar: new MyAppBar(context: context),
+      appBar: new MyAppBar(
+        context: context,
+        uid: FirebaseAuth.instance.currentUser!.uid,
+      ),
       body: new MyBody(context: context),
       floatingActionButton: new FloatingActionButton(
         tooltip: "Request for Blood",

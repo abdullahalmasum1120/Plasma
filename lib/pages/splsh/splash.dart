@@ -1,6 +1,9 @@
-// ignore_for_file: unnecessary_new, prefer_const_constructors
-
-import 'package:blood_donation/components/filled_Button.dart';
+import 'package:blood_donation/components/constant/colors.dart';
+import 'package:blood_donation/components/constant/size.dart';
+import 'package:blood_donation/components/constant/styles.dart';
+import 'package:blood_donation/pages/authentication/authentication.dart';
+import 'package:blood_donation/pages/home/home.dart';
+import 'package:blood_donation/pages/update_user_info/update_user_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,99 +15,79 @@ class Splash extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: Colors.white,
-      body: new Container(
-        height: double.infinity,
-        width: double.infinity,
-        color: new Color(0xFFFF2156),
-        child: new Stack(
-          children: [
-            new Positioned(
-              bottom: 0,
-              right: 0,
-              left: 0,
-              child: new SizedBox(
-                width: double.infinity,
-                child: new SvgPicture.asset(
-                  "assets/icons/splash_foreground.svg",
-                  fit: BoxFit.cover,
+    return Scaffold(
+      backgroundColor: MyColors.primary,
+      body: Stack(
+        children: [
+          Positioned(
+            bottom: 0,
+            right: 0,
+            left: 0,
+            child: SizedBox(
+              width: double.infinity,
+              child: SvgPicture.asset(
+                "assets/icons/splash_foreground.svg",
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  "assets/icons/drop_extended.svg",
+                  height: MySizes.largeIconSize,
+                  width: MySizes.largeIconSize,
                 ),
-              ),
+                const SizedBox(
+                  height: MySizes.defaultSpace,
+                ),
+                Text(
+                  "Dare to Donate",
+                  style: MyTextStyles(MyColors.white).largeTextStyle,
+                ),
+                const SizedBox(
+                  height: MySizes.defaultSpace,
+                ),
+              ],
             ),
-            new Center(
-              child: new Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  new SvgPicture.asset(
-                    "assets/icons/drop_extended.svg",
-                    height: 100,
-                    width: 100,
-                  ),
-                  new SizedBox(
-                    height: 20,
-                  ),
-                  new Text(
-                    "Dare to Donate",
-                    style: new TextStyle(
-                      fontSize: 30,
-                      color: Colors.white,
-                    ),
-                  ),
-                  new SizedBox(
-                    height: 20,
-                  ),
-                ],
-              ),
+          ),
+          Positioned(
+            bottom: 10,
+            right: 10,
+            left: 10,
+            child: Builder(
+              builder: (context) {
+                Future.microtask(() =>
+                    navigateToDesiredPage(FirebaseAuth.instance.currentUser));
+                return const SizedBox();
+              },
             ),
-            new Positioned(
-              bottom: 10,
-              right: 10,
-              left: 10,
-              child: (FirebaseAuth.instance.currentUser != null)
-                  ? new Builder(builder: (context) {
-                      Future.microtask(() async {
-                        try {
-                          DocumentSnapshot<Map<String, dynamic>> snapshot =
-                              await FirebaseFirestore.instance
-                                  .collection("users")
-                                  .doc(FirebaseAuth.instance.currentUser!.uid)
-                                  .get();
-                          if (snapshot.data() != null &&
-                              snapshot.data()!.isNotEmpty) {
-                            Get.offAllNamed("/");
-                          } else {
-                            Get.offAllNamed("/userInfoUpdate");
-                          }
-                        } on FirebaseException catch (e) {
-                          Get.snackbar(
-                              "Warning!", "${e.code}. Please restart your App");
-                          return new SizedBox();
-                        }
-                      });
-                      return new Center(
-                        child: new CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
-                      );
-                    })
-                  : new MyFilledButton(
-                      child: new Text(
-                        "Get Started",
-                        style: new TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2.0,
-                        ),
-                      ),
-                      size: new Size(double.infinity, 0),
-                      function: () => Get.toNamed("/boarding"),
-                      borderRadius: 10,
-                    ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+
+  void navigateToDesiredPage(User? currentUser) async {
+    if (currentUser != null) {
+      try {
+        DocumentSnapshot<Map<String, dynamic>> snapshot =
+            await FirebaseFirestore.instance
+                .collection("users")
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .get();
+        if (snapshot.data() != null && snapshot.data()!.isNotEmpty) {
+          Get.offAll(() => const Home());
+        } else {
+          Get.offAll(() => const UpdateUserInfo());
+        }
+      } on FirebaseException catch (e) {
+        Get.snackbar("Warning!", "${e.code}.\n Please restart your App");
+      }
+    } else {
+      Get.offAll(() => const Authentication());
+    }
   }
 }

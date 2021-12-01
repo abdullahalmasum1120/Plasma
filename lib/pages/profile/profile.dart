@@ -296,6 +296,15 @@ class Profile extends StatelessWidget {
                                           .collection("sentRequests")
                                           .doc(id)
                                           .set(sentRequest);
+
+                                      await FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                          .update({
+                                        "requested": userData["requested"]++
+                                      });
+
                                       Navigator.pop(context);
                                       showDialog(
                                           barrierDismissible: false,

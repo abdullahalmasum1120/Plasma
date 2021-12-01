@@ -40,7 +40,7 @@ class Notifications extends StatelessWidget {
           stream: FirebaseFirestore.instance
               .collection("users")
               .doc(FirebaseAuth.instance.currentUser!.uid)
-              .collection("notifications")
+              .collection("recievedRequests")
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
@@ -73,8 +73,8 @@ class Notifications extends StatelessWidget {
                         await FirebaseFirestore.instance
                             .collection("users")
                             .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .collection("notifications")
-                            .doc(notifications[index]["id"])
+                            .collection("recievedRequests")
+                            .doc(notifications[index]["docId"])
                             .update({"status": "read"});
 
                         Navigator.push(context,
@@ -100,8 +100,9 @@ class Notifications extends StatelessWidget {
                           "assets/icons/donate.svg",
                         ),
                       ),
-                      title: new Text(notifications[index]["catagory"]),
-                      subtitle: new Text("Someone Requested you to Donate"),
+                      title: new Text("Someone Requested you to Donate Blood"),
+                      subtitle: new Text(
+                          "${notifications[index]["time"]} ${notifications[index]["date"]}"),
                     ),
                   );
                 });
