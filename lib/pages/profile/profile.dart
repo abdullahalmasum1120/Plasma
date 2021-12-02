@@ -4,6 +4,8 @@ import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/dialogs/request_succesful.dart';
+import 'package:blood_donation/model/my_user.dart';
+import 'package:blood_donation/model/received_request.dart';
 import 'package:blood_donation/pages/authentication/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -75,9 +77,8 @@ class Profile extends StatelessWidget {
                     ),
                   );
                 }
-
-                Map<String, dynamic> userData =
-                    snapshot.data!.data() as Map<String, dynamic>;
+                MyUser myUser = MyUser.fromJson(
+                    snapshot.data!.data() as Map<String, dynamic>);
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -98,9 +99,9 @@ class Profile extends StatelessWidget {
                           ClipRRect(
                             borderRadius:
                                 BorderRadius.circular(MySizes.defaultRadius),
-                            child: (userData["image"] != null)
+                            child: (myUser.image != null)
                                 ? Image.network(
-                                    userData["image"],
+                                    myUser.image!,
                                     fit: BoxFit.cover,
                                     height: (context.width * 0.32),
                                     width: (context.width * 0.32),
@@ -129,11 +130,12 @@ class Profile extends StatelessWidget {
                                           XFile? file = await ImagePicker()
                                               .pickImage(
                                                   source: ImageSource.gallery);
-                                          Get.snackbar(
-                                              "Message", "Uploading...");
-                                          uploadImage(
-                                              File(file!.path)); //uploading
-
+                                          if (file != null) {
+                                            Get.snackbar(
+                                                "Message", "Uploading...");
+                                            uploadImage(
+                                                File(file.path)); //uploading
+                                          }
                                         } on FirebaseException catch (e) {
                                           Get.snackbar("Warning!", e.code);
                                         }
@@ -157,7 +159,7 @@ class Profile extends StatelessWidget {
                       height: MySizes.defaultSpace,
                     ),
                     Text(
-                      userData["username"],
+                      myUser.username!,
                       style: MyTextStyles(MyColors.black).titleTextStyle,
                     ),
                     const SizedBox(
@@ -177,7 +179,7 @@ class Profile extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      userData["location"],
+                      myUser.location!,
                       style: MyTextStyles(MyColors.grey).defaultTextStyle,
                     ),
                     const SizedBox(
@@ -200,7 +202,7 @@ class Profile extends StatelessWidget {
                                   ),
                                 ),
                                 onPressed: () {
-                                  launch("tel:${userData["phone"]}");
+                                  launch("tel:${myUser.phone}");
                                 },
                                 child: Row(
                                   children: [
@@ -237,24 +239,24 @@ class Profile extends StatelessWidget {
                                       });
                                   String id = const Uuid().v1();
 
-                                  Map<String, dynamic> receivedRequest = {
-                                    "time": DateFormat('kk:mm')
+                                  ReceivedRequest receivedRequest =
+                                      ReceivedRequest(
+                                    time: DateFormat('kk:mm')
                                         .format(DateTime.now()),
-                                    "date": DateFormat('yyyy-MM-dd')
+                                    date: DateFormat('yyyy-MM-dd')
                                         .format(DateTime.now()),
-                                    "uid":
-                                        FirebaseAuth.instance.currentUser!.uid,
-                                    "status": "unread",
-                                    "docId": id,
-                                  };
+                                    uid: FirebaseAuth.instance.currentUser!.uid,
+                                    status: "unread",
+                                    docId: id,
+                                  );
                                   Map<String, dynamic> sentRequest = {
                                     "uid": uid,
                                     "status": "unread",
                                     "docId": id,
                                   };
                                   try {
-                                    uploadRequests(sentRequest, receivedRequest,
-                                        userData, id);
+                                    uploadRequests(sentRequest,
+                                        receivedRequest.toJson(), myUser, id);
                                     Navigator.pop(context);
                                     showDialog(
                                         barrierDismissible: false,
@@ -297,7 +299,7 @@ class Profile extends StatelessWidget {
                             child: Column(
                               children: [
                                 Text(
-                                  userData["bloodGroup"],
+                                  myUser.bloodGroup!,
                                   style: MyTextStyles(MyColors.black)
                                       .buttonTextStyle,
                                 ),
@@ -317,7 +319,7 @@ class Profile extends StatelessWidget {
                             child: Column(
                               children: [
                                 Text(
-                                  userData["donated"].toString(),
+                                  myUser.donated.toString(),
                                   style: MyTextStyles(MyColors.black)
                                       .buttonTextStyle,
                                 ),
@@ -337,7 +339,7 @@ class Profile extends StatelessWidget {
                             child: Column(
                               children: [
                                 Text(
-                                  userData["requested"].toString(),
+                                  myUser.requested.toString(),
                                   style: MyTextStyles(MyColors.black)
                                       .buttonTextStyle,
                                 ),
@@ -381,7 +383,7 @@ class Profile extends StatelessWidget {
                             FlutterSwitch(
                               width: 56,
                               activeColor: MyColors.primary,
-                              value: userData["isAvailable"],
+                              value: myUser.isAvailable!,
                               onToggle: (isOpen) async {
                                 if (FirebaseAuth.instance.currentUser!.uid ==
                                     uid) {
@@ -405,7 +407,7 @@ class Profile extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: () {
-                        //TODO: implement to inVite
+                        //TODO: implement to invite
                       },
                       child: Card(
                         elevation: 3,
@@ -507,7 +509,8 @@ class Profile extends StatelessWidget {
                                       GestureDetector(
                                         onTap: () {
                                           FirebaseAuth.instance.signOut();
-                                          Get.offAll(() => const Authentication());
+                                          Get.offAll(
+                                              () => const Authentication());
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.all(
@@ -584,7 +587,7 @@ class Profile extends StatelessWidget {
   void uploadRequests(
     Map<String, dynamic> sentRequest,
     Map<String, dynamic> receivedRequest,
-    Map<String, dynamic> userData,
+    MyUser myUser,
     String id,
   ) async {
     await FirebaseFirestore.instance
@@ -603,6 +606,6 @@ class Profile extends StatelessWidget {
     await FirebaseFirestore.instance
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
-        .update({"requested": userData["requested"]++});
+        .update({"requested": myUser.requested! + 1});
   }
 }

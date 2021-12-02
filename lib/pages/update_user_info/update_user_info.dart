@@ -4,6 +4,7 @@ import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/filled_Button.dart';
+import 'package:blood_donation/model/my_user.dart';
 import 'package:blood_donation/pages/home/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -257,26 +258,26 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
         builder: (context) {
           return const Loading();
         });
-    Map<String, dynamic> userInfo = {
-      "username": username,
-      "email": email,
-      "bloodGroup": bloodGroup,
-      "location": location,
-      "image": null,
-      "registrationTime": registrationTime,
-      "registrationDate": registrationDate,
-      "donated": 0,
-      "requested": 0,
-      "isAvailable": false,
-      "phone": FirebaseAuth.instance.currentUser!.phoneNumber,
-      "uid": FirebaseAuth.instance.currentUser!.uid,
-    };
+    MyUser myUser =  MyUser(
+      username: username,
+      email:  email,
+      bloodGroup: bloodGroup,
+      location: location,
+      registrationTime: registrationTime,
+      registrationDate: registrationDate,
+      donated: 0,
+      requested: 0,
+      isAvailable: false,
+      phone: FirebaseAuth.instance.currentUser!.phoneNumber,
+      uid: FirebaseAuth.instance.currentUser!.uid,
+    );
+
     try {
       if (FirebaseAuth.instance.currentUser != null) {
         FirebaseFirestore.instance
             .collection("users")
             .doc(FirebaseAuth.instance.currentUser!.uid)
-            .set(userInfo)
+            .set(myUser.toJson()) //TODO: debug point
             .then((value) => {
                   FirebaseAuth.instance.currentUser!
                       .updateDisplayName(username),

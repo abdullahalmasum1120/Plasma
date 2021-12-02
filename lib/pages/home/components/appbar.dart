@@ -36,7 +36,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
             stream: FirebaseFirestore.instance
                 .collection("users")
                 .doc(uid)
-                .collection("recievedRequests")
+                .collection("receivedRequests")
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {

@@ -1,5 +1,8 @@
 // ignore_for_file: unnecessary_new, prefer_const_constructors
 
+import 'package:blood_donation/components/constant/colors.dart';
+import 'package:blood_donation/components/constant/styles.dart';
+import 'package:blood_donation/model/received_request.dart';
 import 'package:blood_donation/pages/profile/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,32 +18,28 @@ class Notifications extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      backgroundColor: MyColors.white,
       appBar: new AppBar(
+        iconTheme: const IconThemeData(
+          color: MyColors.primary,
+        ),
         leading: new IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: new Icon(
-              Icons.arrow_back_ios,
-            )),
+            icon: new Icon(Icons.arrow_back_ios)),
         backgroundColor: Colors.white,
-        iconTheme: IconThemeData(
-          color: Colors.black,
-        ),
         elevation: 0,
         title: new Text(
           "Notifications",
-          style: new TextStyle(
-            color: new Color(0xFFFF2156),
-            fontSize: 24,
-          ),
+          style: MyTextStyles(MyColors.primary).titleTextStyle,
         ),
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream: FirebaseFirestore.instance
               .collection("users")
               .doc(FirebaseAuth.instance.currentUser!.uid)
-              .collection("recievedRequests")
+              .collection("receivedRequests")
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
@@ -52,7 +51,7 @@ class Notifications extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return new Center(
                 child: new CircularProgressIndicator(
-                  color: new Color(0xFFFF2156),
+                  color: MyColors.primary,
                 ),
               );
             }
@@ -62,24 +61,28 @@ class Notifications extends StatelessWidget {
                 child: new Text("No Notifications"),
               );
             }
-            List<QueryDocumentSnapshot<Map<String, dynamic>>> notifications =
-                snapshot.data!.docs;
+            //populate List of notifications
+            List<ReceivedRequest> receivedRequests = <ReceivedRequest>[];
+            for (var element in snapshot.data!.docs) {
+              receivedRequests.add(ReceivedRequest.fromJson(element.data()));
+            }
             return new ListView.builder(
-                itemCount: notifications.length,
+                itemCount: receivedRequests.length,
                 itemBuilder: (context, index) {
                   return new GestureDetector(
                     onTap: () async {
                       try {
+                        //mark as read
                         await FirebaseFirestore.instance
                             .collection("users")
                             .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .collection("recievedRequests")
-                            .doc(notifications[index]["docId"])
+                            .collection("receivedRequests")
+                            .doc(receivedRequests[index].docId)
                             .update({"status": "read"});
 
                         Navigator.push(context,
                             new MaterialPageRoute(builder: (context) {
-                          return new Profile(uid: notifications[index]["uid"]);
+                          return new Profile(uid: receivedRequests[index].uid!);
                         }));
                       } on FirebaseException catch (e) {
                         Get.snackbar("Warning!", e.code);
@@ -89,9 +92,9 @@ class Notifications extends StatelessWidget {
                       leading: new Container(
                         decoration: new BoxDecoration(
                           shape: BoxShape.circle,
-                          border: (notifications[index]["status"] == "unread")
+                          border: (receivedRequests[index].status == "unread")
                               ? Border.all(
-                                  color: new Color(0xFFFF2156),
+                                  color: MyColors.primary,
                                   width: 3,
                                 )
                               : null,
@@ -100,9 +103,12 @@ class Notifications extends StatelessWidget {
                           "assets/icons/donate.svg",
                         ),
                       ),
-                      title: new Text("Someone Requested you to Donate Blood"),
+                      title: new Text(
+                        "Someone Requested you to Donate Blood",
+                        style: MyTextStyles(MyColors.black).defaultTextStyle,
+                      ),
                       subtitle: new Text(
-                          "${notifications[index]["time"]} ${notifications[index]["date"]}"),
+                          "${receivedRequests[index].time} : ${receivedRequests[index].date}"),
                     ),
                   );
                 });
