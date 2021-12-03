@@ -1,7 +1,7 @@
 // ignore_for_file: unnecessary_new, prefer_const_constructors
 
 import 'package:blood_donation/pages/assistant/asistant.dart';
-import 'package:blood_donation/pages/find_donors/donor_list.dart';
+import 'package:blood_donation/pages/find_donors/donors.dart';
 import 'package:blood_donation/pages/report/report.dart';
 
 class DataLists {
@@ -9,7 +9,7 @@ class DataLists {
     {
       "src": "assets/icons/find_donors.svg",
       "label": "Find Donors",
-      "onTap": new DonorList(),
+      "onTap": new Donors(),
     },
     {
       "src": "assets/icons/assistant.svg",
@@ -26,7 +26,7 @@ class DataLists {
     {
       "src": "assets/icons/campaign.svg",
       "label": "Campaign",
-      "onTap": DonorList(),
+      "onTap": Donors(),
     },
   ];
 

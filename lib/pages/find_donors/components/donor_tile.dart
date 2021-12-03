@@ -1,15 +1,17 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 
+import 'package:blood_donation/components/constant/colors.dart';
+import 'package:blood_donation/components/constant/size.dart';
+import 'package:blood_donation/model/my_user.dart';
 import 'package:blood_donation/pages/profile/profile.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class DonorTile extends StatelessWidget {
-  final QueryDocumentSnapshot<Map<String, dynamic>> donorInfo;
+  final MyUser user;
   const DonorTile({
     Key? key,
-    required this.donorInfo,
+    required this.user,
   }) : super(key: key);
 
   @override
@@ -21,7 +23,7 @@ class DonorTile extends StatelessWidget {
           new MaterialPageRoute(
             builder: (context) {
               return new Profile(
-                uid: donorInfo["uid"],
+                uid: user.uid!,
               );
             },
           ),
@@ -29,21 +31,21 @@ class DonorTile extends StatelessWidget {
       },
       child: new Card(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(MySizes.defaultRadius),
         ),
-        margin: EdgeInsets.all(0),
+        margin: EdgeInsets.zero,
         elevation: 2,
         child: new Container(
-          padding: EdgeInsets.all(10),
+          padding: EdgeInsets.all(MySizes.defaultSpace/2),
           height: 100,
           width: double.infinity,
           child: new Row(
             children: [
               new ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: (donorInfo["image"] != null)
+                borderRadius: BorderRadius.circular(MySizes.defaultRadius),
+                child: (user.image != null)
                     ? new Image.network(
-                        donorInfo["image"],
+                        user.image!,
                         fit: BoxFit.cover,
                         height: 80,
                         width: 80,
@@ -51,20 +53,20 @@ class DonorTile extends StatelessWidget {
                     : new Icon(
                         Icons.account_box,
                         size: 80,
-                        color: new Color(0xFFFF2156),
+                        color: MyColors.primary,
                       ),
               ),
               new Expanded(
                 child: new Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
+                    horizontal: MySizes.defaultSpace/2,
                   ),
                   child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       new Text(
-                        donorInfo["username"],
+                        user.username!,
                         style: new TextStyle(
                           overflow: TextOverflow.ellipsis,
                           fontSize: 18,
@@ -73,18 +75,18 @@ class DonorTile extends StatelessWidget {
                         ),
                       ),
                       new SizedBox(
-                        height: 10,
+                        height: MySizes.defaultSpace/2,
                       ),
                       new Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           new Icon(
                             Icons.location_on_outlined,
-                            color: new Color(0xFFFF2156),
+                            color: MyColors.primary,
                           ),
                           new Expanded(
                             child: new Text(
-                              donorInfo["location"],
+                              user.location!,
                               style: new TextStyle(
                                 overflow: TextOverflow.ellipsis,
                                 fontSize: 16,
@@ -125,7 +127,7 @@ class DonorTile extends StatelessWidget {
                       left: 10,
                       top: 25,
                       child: new Text(
-                        donorInfo["bloodGroup"],
+                        user.bloodGroup!,
                         style: new TextStyle(
                           color: Colors.white,
                           fontSize: 16,
