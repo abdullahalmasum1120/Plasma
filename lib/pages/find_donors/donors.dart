@@ -7,6 +7,7 @@ import 'package:blood_donation/model/my_user.dart';
 import 'package:blood_donation/pages/find_donors/components/donor_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'components/search.dart';
 
 class Donors extends StatefulWidget {
@@ -19,6 +20,8 @@ class Donors extends StatefulWidget {
 class _DonorsState extends State<Donors> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _usersStream;
   final TextEditingController searchController = TextEditingController();
+  late ScrollController scrollController;
+  ScrollDirection previousScrollDirection = ScrollDirection.reverse;
   List<MyUser> users = <MyUser>[];
   String searchKey = "";
 
@@ -27,6 +30,24 @@ class _DonorsState extends State<Donors> {
     // TODO: implement initState
     super.initState();
     _usersStream = _getUsersStream();
+    scrollController = ScrollController()
+      ..addListener(() {
+        if (scrollController.position.userScrollDirection !=
+            previousScrollDirection) {
+          setState(() {
+            previousScrollDirection =
+                scrollController.position.userScrollDirection;
+          });
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    searchController.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -50,6 +71,18 @@ class _DonorsState extends State<Donors> {
             "Find Donor",
             style: MyTextStyles(MyColors.primary).titleTextStyle,
           ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  (previousScrollDirection == ScrollDirection.forward)
+                      ? previousScrollDirection = ScrollDirection.reverse
+                      : previousScrollDirection = ScrollDirection.forward;
+                });
+              },
+              icon: Icon(Icons.search),
+            )
+          ],
         ),
         body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: _usersStream,
@@ -71,26 +104,30 @@ class _DonorsState extends State<Donors> {
               users = fetchUsers(snapshot.data!.docs, searchKey);
               return new Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(MySizes.defaultSpace / 2),
-                    child: SearchBar(
-                      suffixIcon:
-                          (searchKey.isEmpty) ? Icons.search : Icons.clear,
-                      onClear: () {
-                        setState(() {
-                          searchKey = "";
-                          searchController.text = searchKey;
-                        });
-                      },
-                      controller: searchController,
-                      context: context,
-                      onChanged: (text) {
-                        setState(() {
-                          searchKey = text;
-                        });
-                      },
-                    ),
-                  ),
+                  (previousScrollDirection == ScrollDirection.forward)
+                      ? Padding(
+                          padding:
+                              const EdgeInsets.all(MySizes.defaultSpace / 2),
+                          child: SearchBar(
+                            suffixIcon: (searchKey.isEmpty)
+                                ? Icons.search
+                                : Icons.clear,
+                            onClear: () {
+                              setState(() {
+                                searchKey = "";
+                                searchController.text = searchKey;
+                              });
+                            },
+                            controller: searchController,
+                            context: context,
+                            onChanged: (text) {
+                              setState(() {
+                                searchKey = text;
+                              });
+                            },
+                          ),
+                        )
+                      : SizedBox(),
                   Expanded(
                     child: new ListView.builder(
                       itemBuilder: ((context, index) {
@@ -108,6 +145,7 @@ class _DonorsState extends State<Donors> {
                       }),
                       itemCount: users.length,
                       shrinkWrap: true,
+                      controller: scrollController,
                     ),
                   ),
                 ],
