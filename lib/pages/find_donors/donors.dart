@@ -20,8 +20,6 @@ class Donors extends StatefulWidget {
 class _DonorsState extends State<Donors> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _usersStream;
   final TextEditingController searchController = TextEditingController();
-  late ScrollController scrollController;
-  ScrollDirection previousScrollDirection = ScrollDirection.reverse;
   List<MyUser> users = <MyUser>[];
   String searchKey = "";
 
@@ -30,23 +28,12 @@ class _DonorsState extends State<Donors> {
     // TODO: implement initState
     super.initState();
     _usersStream = _getUsersStream();
-    scrollController = ScrollController()
-      ..addListener(() {
-        if (scrollController.position.userScrollDirection !=
-            previousScrollDirection) {
-          setState(() {
-            previousScrollDirection =
-                scrollController.position.userScrollDirection;
-          });
-        }
-      });
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     searchController.dispose();
-    scrollController.dispose();
     super.dispose();
   }
 
@@ -71,18 +58,6 @@ class _DonorsState extends State<Donors> {
             "Find Donor",
             style: MyTextStyles(MyColors.primary).titleTextStyle,
           ),
-          actions: [
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  (previousScrollDirection == ScrollDirection.forward)
-                      ? previousScrollDirection = ScrollDirection.reverse
-                      : previousScrollDirection = ScrollDirection.forward;
-                });
-              },
-              icon: Icon(Icons.search),
-            )
-          ],
         ),
         body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: _usersStream,
@@ -102,35 +77,34 @@ class _DonorsState extends State<Donors> {
               }
               //populating users list
               users = fetchUsers(snapshot.data!.docs, searchKey);
-              return new Column(
-                children: [
-                  (previousScrollDirection == ScrollDirection.forward)
-                      ? Padding(
-                          padding:
-                              const EdgeInsets.all(MySizes.defaultSpace / 2),
-                          child: SearchBar(
-                            suffixIcon: (searchKey.isEmpty)
-                                ? Icons.search
-                                : Icons.clear,
-                            onClear: () {
-                              setState(() {
-                                searchKey = "";
-                                searchController.text = searchKey;
-                              });
-                            },
-                            controller: searchController,
-                            context: context,
-                            onChanged: (text) {
-                              setState(() {
-                                searchKey = text;
-                              });
-                            },
-                          ),
-                        )
-                      : SizedBox(),
-                  Expanded(
-                    child: new ListView.builder(
-                      itemBuilder: ((context, index) {
+              return new CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    backgroundColor: MyColors.white,
+                    toolbarHeight: 0,
+                    elevation: 0,
+                    floating: true,
+                    bottom: SearchBar(
+                      suffixIcon:
+                          (searchKey.isEmpty) ? Icons.search : Icons.clear,
+                      onClear: () {
+                        setState(() {
+                          searchKey = "";
+                          searchController.text = searchKey;
+                        });
+                      },
+                      controller: searchController,
+                      context: context,
+                      onChanged: (text) {
+                        setState(() {
+                          searchKey = text;
+                        });
+                      },
+                    ),
+                  ),
+                  new SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      ((context, index) {
                         return Padding(
                           padding: EdgeInsets.fromLTRB(
                             MySizes.defaultSpace / 2,
@@ -143,9 +117,7 @@ class _DonorsState extends State<Donors> {
                           ),
                         );
                       }),
-                      itemCount: users.length,
-                      shrinkWrap: true,
-                      controller: scrollController,
+                      childCount: users.length,
                     ),
                   ),
                 ],
@@ -167,7 +139,11 @@ class _DonorsState extends State<Donors> {
     for (var element in docs) {
       MyUser myUser = MyUser.fromJson(element.data());
       if (searchKey.isNotEmpty) {
-        if (myUser.username!.contains(searchKey)) {
+        if (myUser.username!.toLowerCase().contains(searchKey.toLowerCase()) ||
+            myUser.location!.toLowerCase().contains(searchKey.toLowerCase()) ||
+            myUser.bloodGroup!
+                .toLowerCase()
+                .contains(searchKey.toLowerCase())) {
           tempDocs.add(myUser);
         }
       }

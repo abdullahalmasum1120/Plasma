@@ -124,8 +124,8 @@ class DonorTile extends StatelessWidget {
                       ),
                     ),
                     new Positioned(
-                      left: 10,
-                      top: 25,
+                      left: 8,
+                      top: 26,
                       child: new Text(
                         user.bloodGroup!,
                         style: new TextStyle(
