@@ -25,10 +25,16 @@ class MyTextStyles {
         fontWeight: FontWeight.w900,
         letterSpacing: 2.0,
       );
+
   TextStyle get titleTextStyle => TextStyle(
-    fontSize: 24,
-    color: color,
-    fontWeight: FontWeight.bold,
-    letterSpacing: 2.0,
-  );
+        fontSize: 24,
+        color: color,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 2.0,
+      );
+
+  TextStyle get badgeTextStyle => TextStyle(
+        color: color,
+        fontSize: 12,
+      );
 }

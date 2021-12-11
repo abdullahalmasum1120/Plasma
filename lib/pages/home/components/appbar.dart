@@ -1,5 +1,6 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new
-
+import 'package:blood_donation/components/constant/colors.dart';
+import 'package:blood_donation/components/constant/size.dart';
+import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/pages/notifications/notification.dart';
 import 'package:blood_donation/pages/profile/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,19 +21,16 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
-    return new AppBar(
-      backgroundColor: Colors.white,
-      title: new Text(
+    return AppBar(
+      iconTheme: const IconThemeData(color: MyColors.black),
+      backgroundColor: MyColors.white,
+      title: Text(
         "App Title",
-        style: new TextStyle(
-          color: new Color(0xFFFF2156),
-        ),
+        style: MyTextStyles(MyColors.primary).titleTextStyle,
       ),
       elevation: 0,
       actions: [
-        new StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: FirebaseFirestore.instance
                 .collection("users")
                 .doc(uid)
@@ -40,15 +38,15 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return new Center(child: new Text("Error loading Data"));
+                return const Center(child: Text("Error loading Data"));
               }
               if (!snapshot.hasData) {
-                return new Center(child: new Text("Document does not exist"));
+                return const Center(child: Text("Document does not exist"));
               }
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return new Center(
-                  child: new CircularProgressIndicator(
-                    color: new Color(0xFFFF2156),
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: MyColors.primary,
                   ),
                 );
               }
@@ -63,67 +61,63 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 }
               }
 
-              return new IconButton(
+              return IconButton(
                 onPressed: () {
-                  Get.to(() => new Notifications());
+                  Get.to(() => const Notifications());
                 },
-                icon: new Badge(
-                  badgeColor: new Color(0xFFFF2156),
-                  badgeContent: new Text(
+                icon: Badge(
+                  badgeColor: MyColors.primary,
+                  badgeContent: Text(
                     unread.toString(),
-                    style: new TextStyle(
-                      color: Colors.white,
-                    ),
+                    style: MyTextStyles(MyColors.white).badgeTextStyle,
                   ),
                   showBadge: (unread != 0),
-                  child: new Icon(
+                  child: const Icon(
                     Icons.notifications_outlined,
-                    color: Colors.black,
                     size: 30,
                   ),
                 ),
               );
             }),
-        new SizedBox(
-          width: 10,
+        const SizedBox(
+          width: MySizes.defaultSpace / 2,
         ),
-        new GestureDetector(
+        GestureDetector(
           onTap: () {
             Navigator.push(
               context,
-              new MaterialPageRoute(
+              MaterialPageRoute(
                 builder: (context) {
-                  return new Profile(
+                  return Profile(
                     uid: FirebaseAuth.instance.currentUser!.uid,
                   );
                 },
               ),
             );
           },
-          child: new CircleAvatar(
-            radius: 16,
+          child: CircleAvatar(
+            radius: MySizes.defaultRadius * 2,
             backgroundColor: Colors.transparent,
             child: (FirebaseAuth.instance.currentUser!.photoURL == null)
-                ? new Icon(
+                ? const Icon(
                     Icons.account_circle_outlined,
-                    color: Colors.black,
                     size: 30,
                   )
                 : null,
             backgroundImage:
                 (FirebaseAuth.instance.currentUser!.photoURL != null)
-                    ? new NetworkImage(
+                    ? NetworkImage(
                         FirebaseAuth.instance.currentUser!.photoURL.toString())
                     : null,
           ),
         ),
-        new SizedBox(
-          width: 10,
+        const SizedBox(
+          width: MySizes.defaultSpace,
         ),
       ],
     );
   }
 
   @override
-  Size get preferredSize => new Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

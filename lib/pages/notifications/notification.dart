@@ -1,7 +1,6 @@
-// ignore_for_file: unnecessary_new, prefer_const_constructors
-
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/styles.dart';
+import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/model/received_request.dart';
 import 'package:blood_donation/pages/profile/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,20 +16,21 @@ class Notifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    List<ReceivedRequest> receivedRequests = <ReceivedRequest>[];
+    return Scaffold(
       backgroundColor: MyColors.white,
-      appBar: new AppBar(
+      appBar: AppBar(
         iconTheme: const IconThemeData(
           color: MyColors.primary,
         ),
-        leading: new IconButton(
+        leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: new Icon(Icons.arrow_back_ios)),
+            icon: const Icon(Icons.arrow_back_ios)),
         backgroundColor: Colors.white,
         elevation: 0,
-        title: new Text(
+        title: Text(
           "Notifications",
           style: MyTextStyles(MyColors.primary).titleTextStyle,
         ),
@@ -43,35 +43,41 @@ class Notifications extends StatelessWidget {
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return new Center(child: new Text("Error loading Data"));
+              return const Center(child: Text("Error loading Data"));
             }
             if (!snapshot.hasData) {
-              return new Center(child: new Text("Document does not exist"));
+              return const Center(child: Text("Document does not exist"));
             }
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return new Center(
-                child: new CircularProgressIndicator(
+              return const Center(
+                child: CircularProgressIndicator(
                   color: MyColors.primary,
                 ),
               );
             }
 
             if (snapshot.data!.docs.isEmpty) {
-              return new Center(
-                child: new Text("No Notifications"),
+              return const Center(
+                child: Text("No Notifications"),
               );
             }
             //populate List of notifications
-            List<ReceivedRequest> receivedRequests = <ReceivedRequest>[];
             for (var element in snapshot.data!.docs) {
               receivedRequests.add(ReceivedRequest.fromJson(element.data()));
             }
-            return new ListView.builder(
+            return ListView.builder(
                 itemCount: receivedRequests.length,
                 itemBuilder: (context, index) {
-                  return new GestureDetector(
+                  return GestureDetector(
                     onTap: () async {
                       try {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return const Loading();
+                          },
+                        );
                         //mark as read
                         await FirebaseFirestore.instance
                             .collection("users")
@@ -79,18 +85,20 @@ class Notifications extends StatelessWidget {
                             .collection("receivedRequests")
                             .doc(receivedRequests[index].docId)
                             .update({"status": "read"});
-
+                        //close dialog
+                        Navigator.pop(context);
+                        //navigate to page
                         Navigator.push(context,
-                            new MaterialPageRoute(builder: (context) {
-                          return new Profile(uid: receivedRequests[index].uid!);
+                            MaterialPageRoute(builder: (context) {
+                          return Profile(uid: receivedRequests[index].uid!);
                         }));
                       } on FirebaseException catch (e) {
                         Get.snackbar("Warning!", e.code);
                       }
                     },
-                    child: new ListTile(
-                      leading: new Container(
-                        decoration: new BoxDecoration(
+                    child: ListTile(
+                      leading: Container(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: (receivedRequests[index].status == "unread")
                               ? Border.all(
@@ -103,11 +111,11 @@ class Notifications extends StatelessWidget {
                           "assets/icons/donate.svg",
                         ),
                       ),
-                      title: new Text(
+                      title: Text(
                         "Someone Requested you to Donate Blood",
                         style: MyTextStyles(MyColors.black).defaultTextStyle,
                       ),
-                      subtitle: new Text(
+                      subtitle: Text(
                           "${receivedRequests[index].time} : ${receivedRequests[index].date}"),
                     ),
                   );

@@ -1,18 +1,28 @@
 // ignore_for_file: unnecessary_new, prefer_const_constructors
 
-import 'package:blood_donation/model/all_lists.dart';
+import 'package:blood_donation/components/constant/colors.dart';
+import 'package:blood_donation/components/constant/size.dart';
+import 'package:blood_donation/components/constant/styles.dart';
+import 'package:blood_donation/model/grid.dart';
+import 'package:blood_donation/model/featured_image.dart';
+import 'package:blood_donation/pages/assistant/asistant.dart';
+import 'package:blood_donation/pages/find_donors/donors.dart';
 import 'package:blood_donation/pages/home/components/grid_item.dart';
 import 'package:blood_donation/pages/home/components/list_item.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import 'blood_request_dialog.dart';
+
 class MyBody extends StatefulWidget {
   final BuildContext context;
+  final List<FeaturedImage> images;
 
   const MyBody({
     Key? key,
     required this.context,
+    required this.images,
   }) : super(key: key);
 
   @override
@@ -20,11 +30,51 @@ class MyBody extends StatefulWidget {
 }
 
 class _MyBodyState extends State<MyBody> {
+  //grids data list
+  final List<GridData> grids = [
+    GridData(
+      icon: Icon(
+        Icons.add,
+        color: MyColors.primary,
+      ),
+      label: "Request",
+      widget: BloodRequestDialog(),
+      badgeText: '',
+      widgetType: WidgetType.dialog,
+    ),
+    GridData(
+      label: 'Find',
+      icon: Icon(
+        Icons.search,
+        color: MyColors.primary,
+      ),
+      widget: Donors(),
+      badgeText: '',
+    ),
+    GridData(
+      icon: Icon(
+        Icons.assistant,
+        color: MyColors.primary,
+      ),
+      label: 'Assistant',
+      widget: Assistant(),
+      badgeText: '',
+    ),
+    GridData(
+      icon: Icon(
+        Icons.campaign,
+        color: MyColors.primary,
+      ),
+      label: 'Campaign',
+      widget: Text("Not found"),
+      badgeText: '',
+    ),
+  ];
   int _currentImageIndex = 0;
   late Stream<QuerySnapshot<Map<String, dynamic>>> _requestsStream;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _requestsStream = fetchRequests();
   }
@@ -41,15 +91,10 @@ class _MyBodyState extends State<MyBody> {
               child: new Text("Error loading Data"),
             );
           }
-          if (!snapshot.hasData) {
-            return new Center(
-              child: new Text("Document does not exist"),
-            );
-          }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return new Center(
               child: new CircularProgressIndicator(
-                color: new Color(0xFFFF2156),
+                color: MyColors.primary,
               ),
             );
           }
@@ -62,6 +107,7 @@ class _MyBodyState extends State<MyBody> {
                 child: new CarouselSlider.builder(
                   carouselController: _carouselController,
                   options: new CarouselOptions(
+                      autoPlayInterval: Duration(seconds: 8),
                       viewportFraction: 1.0,
                       autoPlay: true,
                       onPageChanged: (index, reason) {
@@ -69,27 +115,29 @@ class _MyBodyState extends State<MyBody> {
                           _currentImageIndex = index;
                         });
                       }),
-                  itemCount: DataLists.getImageList().length,
+                  itemCount: widget.images.length,
                   itemBuilder:
                       (BuildContext context, int index, int realIndex) {
                     return Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(MySizes.defaultSpace),
                       child: new Container(
                         decoration: new BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius:
+                                BorderRadius.circular(MySizes.defaultRadius),
                             boxShadow: [
                               new BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                offset: new Offset(5, 10),
-                                blurRadius: 10,
+                                color: Colors.grey.withOpacity(0.4),
+                                offset: new Offset(4, 8),
+                                blurRadius: 8,
                               ),
                             ]),
-                        height: 250,
+                        height: 240,
                         width: double.infinity,
                         child: new ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius:
+                              BorderRadius.circular(MySizes.defaultRadius),
                           child: new Image.network(
-                            DataLists.getImageList()[index],
+                            widget.images[index].image.toString(),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -101,20 +149,20 @@ class _MyBodyState extends State<MyBody> {
               new SliverToBoxAdapter(
                 child: new Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: DataLists.getImageList().asMap().entries.map(
+                  children: widget.images.asMap().entries.map(
                     (entry) {
                       return GestureDetector(
                         onTap: () {
                           _carouselController.animateToPage(entry.key);
                         },
                         child: Container(
-                          width: 10,
-                          height: 10,
-                          margin: EdgeInsets.symmetric(horizontal: 5.0),
+                          width: 8,
+                          height: 8,
+                          margin: EdgeInsets.symmetric(horizontal: 4.0),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: _currentImageIndex == entry.key
-                                ? new Color(0xFFFF2156)
+                                ? MyColors.primary
                                 : Colors.black.withOpacity(0.2),
                           ),
                         ),
@@ -124,42 +172,38 @@ class _MyBodyState extends State<MyBody> {
                 ),
               ),
               new SliverPadding(
-                padding: EdgeInsets.all(10),
+                padding: EdgeInsets.all(MySizes.defaultSpace / 2),
                 sliver: new SliverGrid(
                   delegate: new SliverChildBuilderDelegate(
                     (context, index) {
                       return new MyGridCard(
                         context: context,
-                        index: index,
-                        src: DataLists.getGridItems()[index]["src"],
-                        label: DataLists.getGridItems()[index]["label"],
-                        widgetToNavigate: DataLists.getGridItems()[index]
-                            ["onTap"],
+                        icon: grids[index].icon,
+                        label: grids[index].label,
+                        widgetToNavigate: grids[index].widget,
+                        badgeText: grids[index].badgeText,
+                        widgetType: grids[index].widgetType,
                       );
                     },
-                    childCount: DataLists.getGridItems().length,
+                    childCount: grids.length,
                   ),
                   gridDelegate: new SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 150,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
+                    maxCrossAxisExtent: 140,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
                   ),
                 ),
               ),
               new SliverAppBar(
                 pinned: true,
-                titleTextStyle: new TextStyle(
-                  color: Colors.black,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                ),
+                floating: true,
+                titleTextStyle: MyTextStyles(MyColors.black).titleTextStyle,
                 automaticallyImplyLeading: false,
-                title: new Text("Donation Request"),
+                title: new Text("Donation Requests"),
                 backgroundColor: Colors.white,
               ),
               new SliverPadding(
-                padding: EdgeInsets.all(10),
+                padding: EdgeInsets.all(8),
                 sliver: (requests.isEmpty)
                     ? new SliverToBoxAdapter(
                         child: new Center(
