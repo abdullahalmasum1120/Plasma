@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_new, prefer_const_constructors
 
+import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/pages/assistant/components/model/chat_message.dart';
 import 'package:flutter/material.dart';
 import 'message_types/audio_message.dart';
@@ -7,16 +8,16 @@ import 'message_types/text_message.dart';
 import 'message_types/video_message.dart';
 
 class Message extends StatelessWidget {
+  final ChatMessage message;
+
   const Message({
     Key? key,
     required this.message,
   }) : super(key: key);
 
-  final ChatMessage message;
-
   @override
   Widget build(BuildContext context) {
-    Widget messageContaint(ChatMessage message) {
+    Widget messageContained(ChatMessage message) {
       switch (message.messageType) {
         case ChatMessageType.text:
           return new TextMessage(message: message);
@@ -31,7 +32,7 @@ class Message extends StatelessWidget {
 
     return new Padding(
       padding: EdgeInsets.only(
-        top: 10,
+        top: MySizes.defaultSpace / 2,
       ),
       child: new Row(
         mainAxisAlignment:
@@ -39,14 +40,14 @@ class Message extends StatelessWidget {
         children: [
           if (!message.isSender) ...[
             new CircleAvatar(
-              radius: 15,
-              backgroundImage: new AssetImage(""),
+              radius: 16,
+              // backgroundImage: new AssetImage(""),
             ),
             new SizedBox(
-              width: 10,
+              width: MySizes.defaultSpace / 2,
             ),
           ],
-          messageContaint(message),
+          messageContained(message),
           if (message.isSender)
             new MessageStatusDot(status: message.messageStatus)
         ],
@@ -59,6 +60,7 @@ class MessageStatusDot extends StatelessWidget {
   final MessageStatus? status;
 
   const MessageStatusDot({Key? key, this.status}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     Color dotColor(MessageStatus status) {

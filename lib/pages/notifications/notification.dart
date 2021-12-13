@@ -10,13 +10,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 class Notifications extends StatelessWidget {
-  const Notifications({
+  List<ReceivedRequest> receivedRequests = <ReceivedRequest>[];
+
+  Notifications({
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    List<ReceivedRequest> receivedRequests = <ReceivedRequest>[];
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: AppBar(
@@ -62,6 +63,7 @@ class Notifications extends StatelessWidget {
               );
             }
             //populate List of notifications
+            receivedRequests.clear();
             for (var element in snapshot.data!.docs) {
               receivedRequests.add(ReceivedRequest.fromJson(element.data()));
             }

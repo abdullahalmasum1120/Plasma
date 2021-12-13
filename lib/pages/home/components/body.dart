@@ -3,7 +3,7 @@
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
-import 'package:blood_donation/model/grid.dart';
+import 'package:blood_donation/model/grid_item.dart';
 import 'package:blood_donation/model/featured_image.dart';
 import 'package:blood_donation/pages/assistant/asistant.dart';
 import 'package:blood_donation/pages/find_donors/donors.dart';
@@ -60,15 +60,15 @@ class _MyBodyState extends State<MyBody> {
       widget: Assistant(),
       badgeText: '',
     ),
-    GridData(
-      icon: Icon(
-        Icons.campaign,
-        color: MyColors.primary,
-      ),
-      label: 'Campaign',
-      widget: Text("Not found"),
-      badgeText: '',
-    ),
+    // GridData(
+    //   icon: Icon(
+    //     Icons.campaign,
+    //     color: MyColors.primary,
+    //   ),
+    //   label: 'Campaign',
+    //   widget: Text("Not found"),
+    //   badgeText: '',
+    // ),
   ];
   int _currentImageIndex = 0;
   late Stream<QuerySnapshot<Map<String, dynamic>>> _requestsStream;

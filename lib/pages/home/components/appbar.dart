@@ -63,7 +63,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
               return IconButton(
                 onPressed: () {
-                  Get.to(() => const Notifications());
+                  Get.to(() => Notifications());
                 },
                 icon: Badge(
                   badgeColor: MyColors.primary,

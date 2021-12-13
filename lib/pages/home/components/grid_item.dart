@@ -4,7 +4,7 @@ import 'package:badges/badges.dart';
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
-import 'package:blood_donation/model/grid.dart';
+import 'package:blood_donation/model/grid_item.dart';
 import 'package:flutter/material.dart';
 
 class MyGridCard extends StatelessWidget {

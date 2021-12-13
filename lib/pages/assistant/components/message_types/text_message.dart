@@ -4,12 +4,12 @@ import 'package:blood_donation/pages/assistant/components/model/chat_message.dar
 import 'package:flutter/material.dart';
 
 class TextMessage extends StatelessWidget {
+  final ChatMessage message;
+
   const TextMessage({
     Key? key,
-    this.message,
+    required this.message,
   }) : super(key: key);
-
-  final ChatMessage? message;
 
   @override
   Widget build(BuildContext context) {
