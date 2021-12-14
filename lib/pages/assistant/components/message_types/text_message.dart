@@ -1,18 +1,21 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 
-import 'package:blood_donation/pages/assistant/components/model/chat_message.dart';
+import 'package:blood_donation/model/assistant/chat_message.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class TextMessage extends StatelessWidget {
-  final ChatMessage message;
+  final ChatMessage chat;
 
   const TextMessage({
     Key? key,
-    required this.message,
+    required this.chat,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    bool isSender = (chat.sender == FirebaseAuth.instance.currentUser!.uid);
+    print(isSender);
     return Container(
       ///error occurred
       // color: MediaQuery.of(context).platformBrightness == Brightness.dark
@@ -23,13 +26,13 @@ class TextMessage extends StatelessWidget {
         vertical: 20 / 2,
       ),
       decoration: BoxDecoration(
-        color: new Color(0xFFFF2156).withOpacity(message!.isSender ? 1 : 0.1),
+        color: new Color(0xFFFF2156).withOpacity(isSender ? 1 : 0.1),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
-        message!.text,
+        chat.text!,
         style: TextStyle(
-          color: message!.isSender
+          color: isSender
               ? Colors.white
               : Theme.of(context).textTheme.bodyText1!.color,
         ),

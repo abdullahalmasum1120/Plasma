@@ -1,32 +1,38 @@
 // ignore_for_file: unnecessary_new, prefer_const_constructors
 
+import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
-import 'package:blood_donation/pages/assistant/components/model/chat_message.dart';
+import 'package:blood_donation/model/assistant/chat_message.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'message_types/audio_message.dart';
+
 import 'message_types/text_message.dart';
-import 'message_types/video_message.dart';
 
 class Message extends StatelessWidget {
-  final ChatMessage message;
+  final ChatMessage chat;
 
   const Message({
     Key? key,
-    required this.message,
+    required this.chat,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    bool isSender = (chat.sender == FirebaseAuth.instance.currentUser!.uid);
     Widget messageContained(ChatMessage message) {
       switch (message.messageType) {
-        case ChatMessageType.text:
-          return new TextMessage(message: message);
-        case ChatMessageType.audio:
-          return new AudioMessage(message: message);
-        case ChatMessageType.video:
-          return new VideoMessage();
+        case "text":
+          return new TextMessage(
+            chat: chat,
+          );
+        // case "audio":
+        //   return new AudioMessage();
+        // case "video":
+        //   return new VideoMessage();
+        // case "image":
+        //   return new ImageMessage();
         default:
-          return new SizedBox();
+          return SizedBox();
       }
     }
 
@@ -36,9 +42,9 @@ class Message extends StatelessWidget {
       ),
       child: new Row(
         mainAxisAlignment:
-            message.isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+            isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!message.isSender) ...[
+          if (!isSender) ...[
             new CircleAvatar(
               radius: 16,
               // backgroundImage: new AssetImage(""),
@@ -47,9 +53,9 @@ class Message extends StatelessWidget {
               width: MySizes.defaultSpace / 2,
             ),
           ],
-          messageContained(message),
-          if (message.isSender)
-            new MessageStatusDot(status: message.messageStatus)
+          messageContained(chat),
+          if (isSender)
+            new MessageStatusDot(status: chat.messageStatus!)
         ],
       ),
     );
@@ -57,20 +63,20 @@ class Message extends StatelessWidget {
 }
 
 class MessageStatusDot extends StatelessWidget {
-  final MessageStatus? status;
+  final String status;
 
-  const MessageStatusDot({Key? key, this.status}) : super(key: key);
+  const MessageStatusDot({Key? key,required this.status}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Color dotColor(MessageStatus status) {
+    Color dotColor(String status) {
       switch (status) {
-        case MessageStatus.not_sent:
+        case "notSent":
           return Colors.red;
-        case MessageStatus.not_view:
+        case "notViewed":
           return Theme.of(context).textTheme.bodyText1!.color!.withOpacity(0.1);
-        case MessageStatus.viewed:
-          return new Color(0xFFFF2156);
+        case "viewed":
+          return MyColors.primary;
         default:
           return Colors.transparent;
       }
@@ -83,11 +89,11 @@ class MessageStatusDot extends StatelessWidget {
       height: 12,
       width: 12,
       decoration: new BoxDecoration(
-        color: dotColor(status!),
+        color: dotColor(status),
         shape: BoxShape.circle,
       ),
       child: new Icon(
-        status == MessageStatus.not_sent ? Icons.close : Icons.done,
+        (status == "notSent") ? Icons.close : Icons.done,
         size: 8,
         color: Theme.of(context).scaffoldBackgroundColor,
       ),

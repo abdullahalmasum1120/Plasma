@@ -102,6 +102,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ? const Icon(
                     Icons.account_circle_outlined,
                     size: 30,
+                    color: MyColors.black,
                   )
                 : null,
             backgroundImage:
