@@ -5,7 +5,6 @@ import 'package:blood_donation/model/assistant/chat_message.dart';
 import 'package:blood_donation/pages/assistant/components/chat_input_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'components/message.dart';
 
 class Assistant extends StatefulWidget {
@@ -61,7 +60,11 @@ class _AssistantState extends State<Assistant> {
                     );
                   }
                   chats = fetchChats(snapshot.data!.docs);
+                  if(chats.isEmpty){
+                    return const Center(child: Text("No messages yet"));
+                  }
                   return ListView.builder(
+                    reverse: true,
                     padding: const EdgeInsets.symmetric(
                       horizontal: MySizes.defaultSpace / 2,
                     ),
@@ -82,7 +85,10 @@ class _AssistantState extends State<Assistant> {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> get messagesStream =>
-      FirebaseFirestore.instance.collection("assistant").snapshots();
+      FirebaseFirestore.instance
+          .collection("assistant")
+          .orderBy("time", descending: true)
+          .snapshots();
 
   List<ChatMessage> fetchChats(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> docs) {

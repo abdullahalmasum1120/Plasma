@@ -126,6 +126,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
     FirebaseFirestore.instance
         .collection("assistant")
         .doc(docId)
-        .set(chatMessage.toJson());
+        .set(chatMessage.toJson())
+        .then((value) => FirebaseFirestore.instance
+            .collection("assistant")
+            .doc(docId)
+            .update({"messageStatus": "notViewed"}));
   }
 }

@@ -5,7 +5,6 @@ import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/model/assistant/chat_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'message_types/text_message.dart';
 
 class Message extends StatelessWidget {
@@ -39,23 +38,30 @@ class Message extends StatelessWidget {
     return new Padding(
       padding: EdgeInsets.only(
         top: MySizes.defaultSpace / 2,
+        right: (!isSender) ? MySizes.defaultSpace * 2 : 0,
+        left: (isSender) ? MySizes.defaultSpace * 2 : 0,
       ),
       child: new Row(
         mainAxisAlignment:
             isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment:
+            isSender ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         children: [
           if (!isSender) ...[
             new CircleAvatar(
               radius: 16,
-              // backgroundImage: new AssetImage(""),
+              backgroundImage:
+                  (chat.image != null) ? NetworkImage(chat.image!) : null,
+              child: (chat.image == null)
+                  ? Icon(Icons.account_circle)
+                  : SizedBox(),
             ),
             new SizedBox(
               width: MySizes.defaultSpace / 2,
             ),
           ],
           messageContained(chat),
-          if (isSender)
-            new MessageStatusDot(status: chat.messageStatus!)
+          if (isSender) new MessageStatusDot(status: chat.messageStatus!)
         ],
       ),
     );
@@ -65,7 +71,7 @@ class Message extends StatelessWidget {
 class MessageStatusDot extends StatelessWidget {
   final String status;
 
-  const MessageStatusDot({Key? key,required this.status}) : super(key: key);
+  const MessageStatusDot({Key? key, required this.status}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +80,7 @@ class MessageStatusDot extends StatelessWidget {
         case "notSent":
           return Colors.red;
         case "notViewed":
-          return Theme.of(context).textTheme.bodyText1!.color!.withOpacity(0.1);
+          return Colors.red;
         case "viewed":
           return MyColors.primary;
         default:
