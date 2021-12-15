@@ -41,7 +41,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: MyColors.primary.withOpacity(0.1),
+        color: MyColors.grey.withOpacity(0.1),
         borderRadius: BorderRadius.circular(MySizes.defaultRadius * 4),
       ),
       child: Row(

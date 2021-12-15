@@ -60,7 +60,7 @@ class _AssistantState extends State<Assistant> {
                     );
                   }
                   chats = fetchChats(snapshot.data!.docs);
-                  if(chats.isEmpty){
+                  if (chats.isEmpty) {
                     return const Center(child: Text("No messages yet"));
                   }
                   return ListView.builder(

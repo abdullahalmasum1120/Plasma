@@ -72,6 +72,8 @@ class _MyBodyState extends State<MyBody> {
   ];
   int _currentImageIndex = 0;
   late Stream<QuerySnapshot<Map<String, dynamic>>> _requestsStream;
+  final CarouselController _carouselController = CarouselController();
+  final ScrollController _customScrollController = ScrollController();
 
   @override
   void initState() {
@@ -80,9 +82,13 @@ class _MyBodyState extends State<MyBody> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final CarouselController _carouselController = CarouselController();
+  void dispose() {
+    _customScrollController.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return new StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _requestsStream,
         builder: (context, snapshot) {
@@ -102,6 +108,7 @@ class _MyBodyState extends State<MyBody> {
           List<QueryDocumentSnapshot<Map<String, dynamic>>> requests =
               snapshot.data!.docs;
           return new CustomScrollView(
+            controller: _customScrollController,
             slivers: [
               new SliverToBoxAdapter(
                 child: new CarouselSlider.builder(
@@ -199,7 +206,16 @@ class _MyBodyState extends State<MyBody> {
                 floating: true,
                 titleTextStyle: MyTextStyles(MyColors.black).titleTextStyle,
                 automaticallyImplyLeading: false,
-                title: new Text("Donation Requests"),
+                title: GestureDetector(
+                  onTap: () {
+                    _customScrollController.animateTo(
+                      0,
+                      duration: Duration(seconds: 1),
+                      curve: Curves.fastOutSlowIn,
+                    );
+                  },
+                  child: new Text("Donation Requests"),
+                ),
                 backgroundColor: Colors.white,
               ),
               new SliverPadding(

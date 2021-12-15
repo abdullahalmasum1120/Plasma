@@ -5,8 +5,10 @@ import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/model/assistant/chat_message.dart';
 import 'package:blood_donation/pages/assistant/components/message_types/image_message.dart';
 import 'package:blood_donation/pages/assistant/components/message_types/video_message.dart';
+import 'package:blood_donation/pages/profile/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'message_types/text_message.dart';
 
 class Message extends StatelessWidget {
@@ -52,13 +54,19 @@ class Message extends StatelessWidget {
             isSender ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         children: [
           if (!isSender) ...[
-            new CircleAvatar(
-              radius: 16,
-              backgroundImage:
-                  (chat.image != null) ? NetworkImage(chat.image!) : null,
-              child: (chat.image == null)
-                  ? Icon(Icons.account_circle)
-                  : SizedBox(),
+            GestureDetector(
+              onTap: () {
+                Get.to(() => Profile(uid: chat.sender!));
+              },
+              child: new CircleAvatar(
+                radius: 16,
+                backgroundImage: (chat.senderProfileImage != null)
+                    ? NetworkImage(chat.senderProfileImage!)
+                    : null,
+                child: (chat.senderProfileImage == null)
+                    ? Icon(Icons.account_circle)
+                    : SizedBox(),
+              ),
             ),
             new SizedBox(
               width: MySizes.defaultSpace / 2,
