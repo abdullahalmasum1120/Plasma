@@ -46,14 +46,14 @@ class Profile extends StatelessWidget {
         ),
         backgroundColor: MyColors.white,
         title: const Text("Profile"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              //TODO: implement Edit profile
-            },
-            icon: const Icon(Icons.edit),
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () {
+        //       //TODO: implement Edit profile
+        //     },
+        //     icon: const Icon(Icons.edit),
+        //   ),
+        // ],
       ),
       body: SingleChildScrollView(
         child: Padding(

@@ -87,7 +87,7 @@ class _AssistantState extends State<Assistant> {
   Stream<QuerySnapshot<Map<String, dynamic>>> get messagesStream =>
       FirebaseFirestore.instance
           .collection("assistant")
-          .orderBy("time", descending: true)
+          .orderBy("timeStamp", descending: true)
           .snapshots();
 
   List<ChatMessage> fetchChats(

@@ -3,6 +3,8 @@
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/model/assistant/chat_message.dart';
+import 'package:blood_donation/pages/assistant/components/message_types/image_message.dart';
+import 'package:blood_donation/pages/assistant/components/message_types/video_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'message_types/text_message.dart';
@@ -28,8 +30,10 @@ class Message extends StatelessWidget {
         //   return new AudioMessage();
         // case "video":
         //   return new VideoMessage();
-        // case "image":
-        //   return new ImageMessage();
+        case "image":
+          return new ImageMessage(
+            chat: chat,
+          );
         default:
           return SizedBox();
       }

@@ -24,21 +24,25 @@ class ChatMessage {
   String? docId;
   String? time;
   String? date;
+  String? imageDocId;
+  String? timeStamp;
 
   ChatMessage(
       {this.messageType,
-        this.messageStatus,
-        this.sender,
-        this.senderName,
-        this.senderProfileImage,
-        this.text,
-        this.audio,
-        this.video,
-        this.image,
-        this.receiver,
-        this.docId,
-        this.time,
-        this.date});
+      this.messageStatus,
+      this.sender,
+      this.senderName,
+      this.senderProfileImage,
+      this.text,
+      this.audio,
+      this.video,
+      this.image,
+      this.receiver,
+      this.docId,
+      this.time,
+      this.imageDocId,
+      this.date,
+      this.timeStamp});
 
   ChatMessage.fromJson(Map<String, dynamic> json) {
     messageType = json['messageType'];
@@ -54,6 +58,8 @@ class ChatMessage {
     docId = json['docId'];
     time = json['time'];
     date = json['date'];
+    imageDocId = json['imageDocId'];
+    timeStamp = json['timeStamp'];
   }
 
   Map<String, dynamic> toJson() {
@@ -71,6 +77,8 @@ class ChatMessage {
     data['docId'] = docId;
     data['time'] = time;
     data['date'] = date;
+    data['imageDocId'] = imageDocId;
+    data['timeStamp'] = timeStamp;
     return data;
   }
 }
