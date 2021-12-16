@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:blood_donation/components/constant/colors.dart';
@@ -12,6 +13,7 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import 'package:record/record.dart';
 
 enum SendButtonState {
   visible,
@@ -30,6 +32,7 @@ class ChatInputField extends StatefulWidget {
 class _ChatInputFieldState extends State<ChatInputField> {
   SendButtonState sendButtonState = SendButtonState.hidden;
   TextEditingController messageController = TextEditingController();
+  final String myAudioPath = 'storage/emulated/0/Download/audio.mp3';
 
   @override
   void dispose() {
@@ -100,7 +103,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                           .pickImage(source: ImageSource.gallery);
                       if (file != null) {
                         Get.snackbar("Message", "sending...");
-                        uploadFile(File(file.path)); //uploading
+                        uploadFile(File(file.path), "image"); //uploading
                       }
                     } on FirebaseException catch (e) {
                       Get.snackbar("Warning!", e.code);
@@ -116,13 +119,22 @@ class _ChatInputFieldState extends State<ChatInputField> {
           ),
           Visibility(
             visible: (sendButtonState == SendButtonState.hidden),
-            child: IconButton(
-              onPressed: () {
-                //TODO: voiceRecordSend()
+            child: GestureDetector(
+              onLongPressStart: (details) async {
+                if (await Record().hasPermission()) {
+                  await Record().start(path: myAudioPath);
+                }
               },
-              icon: const Icon(
-                Icons.mic,
-                color: MyColors.black,
+              onLongPressEnd: (details) async {
+                await Record().stop();
+                uploadFile(File(myAudioPath), "audio");
+              },
+              child: IconButton(
+                icon: const Icon(
+                  Icons.mic,
+                  color: MyColors.black,
+                ),
+                onPressed: () {},
               ),
             ),
           ),
@@ -158,21 +170,21 @@ class _ChatInputFieldState extends State<ChatInputField> {
         .set(chatMessage.toJson());
   }
 
-  void uploadFile(File file) async {
+  void uploadFile(File file, String messageType) async {
     String? docId = const Uuid().v1();
     sendMessage(
         docId: docId,
         user: FirebaseAuth.instance.currentUser!,
-        messageType: "image");
+        messageType: messageType);
 
     Reference reference = FirebaseStorage.instance
         .ref("assistant")
-        .child("images")
+        .child(messageType)
         .child("$docId.${path.extension(file.path)}");
     await reference.putFile(File(file.path));
 
     FirebaseFirestore.instance.collection("assistant").doc(docId).update({
-      "image": await reference.getDownloadURL(),
+      messageType: await reference.getDownloadURL(),
       "messageStatus": "notViewed",
     });
   }

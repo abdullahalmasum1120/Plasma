@@ -4,11 +4,11 @@ import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/model/assistant/chat_message.dart';
 import 'package:blood_donation/pages/assistant/components/message_types/image_message.dart';
-import 'package:blood_donation/pages/assistant/components/message_types/video_message.dart';
 import 'package:blood_donation/pages/profile/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'message_types/audio_message.dart';
 import 'message_types/text_message.dart';
 
 class Message extends StatelessWidget {
@@ -28,8 +28,8 @@ class Message extends StatelessWidget {
           return new TextMessage(
             chat: chat,
           );
-        // case "audio":
-        //   return new AudioMessage();
+        case "audio":
+          return new AudioMessage(chat: chat);
         // case "video":
         //   return new VideoMessage();
         case "image":

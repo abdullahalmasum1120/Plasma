@@ -1,14 +1,44 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:blood_donation/pages/assistant/components/model/chat_message.dart';
+import 'package:blood_donation/components/constant/colors.dart';
+import 'package:blood_donation/model/assistant/chat_message.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 
-class AudioMessage extends StatelessWidget {
-  final ChatMessage? message;
+enum PlayerState {
+  playing,
+  pause,
+  idle,
+}
 
-  const AudioMessage({Key? key, this.message}) : super(key: key);
+class AudioMessage extends StatefulWidget {
+  final ChatMessage chat;
+
+  const AudioMessage({
+    Key? key,
+    required this.chat,
+  }) : super(key: key);
+
+  @override
+  State<AudioMessage> createState() => _AudioMessageState();
+}
+
+class _AudioMessageState extends State<AudioMessage> {
+  final AudioPlayer player = AudioPlayer();
+  PlayerState playerState = PlayerState.idle;
+
+  @override
+  void dispose() {
+    player.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool isSender =
+        (widget.chat.sender == FirebaseAuth.instance.currentUser!.uid);
+    // print(playerState);
     return Container(
       width: MediaQuery.of(context).size.width * 0.55,
       padding: EdgeInsets.symmetric(
@@ -17,13 +47,29 @@ class AudioMessage extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
-        color: new Color(0xFFFF2156).withOpacity(message!.isSender ? 1 : 0.1),
+        color: Color(0xFFFF2156).withOpacity(isSender ? 1 : 0.1),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.play_arrow,
-            color: message!.isSender ? Colors.white : new Color(0xFFFF2156),
+          GestureDetector(
+            onTap: () async {
+              //TODO: play();
+              // player.setUrl(widget.chat.audio!);
+              // if (playerState == PlayerState.playing) {
+              //   player.pause();
+              // } else {
+              //   player.play();
+              // }
+            },
+            child: (playerState == PlayerState.pause)
+                ? Icon(
+                    Icons.pause,
+                    color: isSender ? Colors.white : Color(0xFFFF2156),
+                  )
+                : Icon(
+                    Icons.play_arrow,
+                    color: isSender ? Colors.white : Color(0xFFFF2156),
+                  ),
           ),
           Expanded(
             child: Padding(
@@ -35,9 +81,9 @@ class AudioMessage extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     height: 2,
-                    color: message!.isSender
+                    color: isSender
                         ? Colors.white
-                        : new Color(0xFFFF2156).withOpacity(0.4),
+                        : Color(0xFFFF2156).withOpacity(0.4),
                   ),
                   Positioned(
                     left: 0,
@@ -45,9 +91,7 @@ class AudioMessage extends StatelessWidget {
                       height: 8,
                       width: 8,
                       decoration: BoxDecoration(
-                        color: message!.isSender
-                            ? Colors.white
-                            : new Color(0xFFFF2156),
+                        color: isSender ? Colors.white : Color(0xFFFF2156),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -58,8 +102,8 @@ class AudioMessage extends StatelessWidget {
           ),
           Text(
             "0.37",
-            style: TextStyle(
-                fontSize: 12, color: message!.isSender ? Colors.white : null),
+            style:
+                TextStyle(fontSize: 12, color: isSender ? Colors.white : null),
           ),
         ],
       ),

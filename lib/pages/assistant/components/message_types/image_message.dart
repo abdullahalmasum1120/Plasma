@@ -14,7 +14,6 @@ class ImageMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(chat.image);
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.45, // 45% of total width
       child: AspectRatio(
