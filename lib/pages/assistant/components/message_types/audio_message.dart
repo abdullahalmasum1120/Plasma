@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/model/assistant/chat_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +7,7 @@ import 'package:just_audio/just_audio.dart';
 
 enum PlayerState {
   playing,
-  pause,
-  idle,
+  paused,
 }
 
 class AudioMessage extends StatefulWidget {
@@ -26,7 +24,9 @@ class AudioMessage extends StatefulWidget {
 
 class _AudioMessageState extends State<AudioMessage> {
   final AudioPlayer player = AudioPlayer();
-  PlayerState playerState = PlayerState.idle;
+  PlayerState playerState = PlayerState.paused;
+  late Duration duration;
+  double position = 0;
 
   @override
   void dispose() {
@@ -35,15 +35,34 @@ class _AudioMessageState extends State<AudioMessage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    player.playerStateStream.listen((state) {
+      if (state.playing && (playerState != PlayerState.playing)) {
+        setState(() {
+          playerState = PlayerState.playing;
+        });
+      } else {
+        setState(() {
+          playerState = PlayerState.paused;
+        });
+      }
+    });
+    player.positionStream.listen((duration) {
+      setState(() {
+        position = duration.inSeconds.toDouble();
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     bool isSender =
         (widget.chat.sender == FirebaseAuth.instance.currentUser!.uid);
-    // print(playerState);
     return Container(
       width: MediaQuery.of(context).size.width * 0.55,
       padding: EdgeInsets.symmetric(
         horizontal: 20 * 0.75,
-        vertical: 20 / 2.5,
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
@@ -52,16 +71,15 @@ class _AudioMessageState extends State<AudioMessage> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () async {
-              //TODO: play();
-              // player.setUrl(widget.chat.audio!);
-              // if (playerState == PlayerState.playing) {
-              //   player.pause();
-              // } else {
-              //   player.play();
-              // }
+            onTap: () {
+              player.setUrl(widget.chat.audio!);
+              if (playerState == PlayerState.playing) {
+                player.pause();
+              } else {
+                player.play();
+              }
             },
-            child: (playerState == PlayerState.pause)
+            child: (playerState == PlayerState.playing)
                 ? Icon(
                     Icons.pause,
                     color: isSender ? Colors.white : Color(0xFFFF2156),
@@ -72,36 +90,19 @@ class _AudioMessageState extends State<AudioMessage> {
                   ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20 / 2),
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 2,
-                    color: isSender
-                        ? Colors.white
-                        : Color(0xFFFF2156).withOpacity(0.4),
-                  ),
-                  Positioned(
-                    left: 0,
-                    child: Container(
-                      height: 8,
-                      width: 8,
-                      decoration: BoxDecoration(
-                        color: isSender ? Colors.white : Color(0xFFFF2156),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  )
-                ],
-              ),
+            child: Slider(
+              value: 0,
+              max: duration.inSeconds.toDouble(),
+              thumbColor: isSender ? Colors.white : Color(0xFFFF2156),
+              onChanged: (position) {
+                setState(() {
+                  player.seek(Duration(seconds: position.toInt()));
+                });
+              },
             ),
           ),
           Text(
-            "0.37",
+            "${(duration.inSeconds / 60).floor()} : ${duration.inSeconds % 60}",
             style:
                 TextStyle(fontSize: 12, color: isSender ? Colors.white : null),
           ),

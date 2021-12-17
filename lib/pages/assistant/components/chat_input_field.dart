@@ -32,7 +32,7 @@ class ChatInputField extends StatefulWidget {
 class _ChatInputFieldState extends State<ChatInputField> {
   SendButtonState sendButtonState = SendButtonState.hidden;
   TextEditingController messageController = TextEditingController();
-  final String myAudioPath = 'storage/emulated/0/Download/audio.mp3';
+  final String myAudioPath = 'storage/emulated/0/Download/audio.m4a';
 
   @override
   void dispose() {
