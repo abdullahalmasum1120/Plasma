@@ -1,14 +1,9 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:blood_donation/model/assistant/chat_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
-
-enum PlayerState {
-  playing,
-  paused,
-}
 
 class AudioMessage extends StatefulWidget {
   final ChatMessage chat;
@@ -24,35 +19,28 @@ class AudioMessage extends StatefulWidget {
 
 class _AudioMessageState extends State<AudioMessage> {
   final AudioPlayer player = AudioPlayer();
-  PlayerState playerState = PlayerState.paused;
-  late Duration duration;
-  double position = 0;
+  PlayerState playerState = PlayerState.PAUSED;
+  Duration duration = Duration(seconds: 150);
 
-  @override
-  void dispose() {
-    player.dispose();
-    super.dispose();
-  }
+  // double position = 0;
 
   @override
   void initState() {
     super.initState();
-    player.playerStateStream.listen((state) {
-      if (state.playing && (playerState != PlayerState.playing)) {
+    player.onPlayerStateChanged.listen((PlayerState state) {
+      if (playerState != state) {
         setState(() {
-          playerState = PlayerState.playing;
-        });
-      } else {
-        setState(() {
-          playerState = PlayerState.paused;
+          playerState = state;
         });
       }
     });
-    player.positionStream.listen((duration) {
-      setState(() {
-        position = duration.inSeconds.toDouble();
-      });
-    });
+  }
+
+  @override
+  void dispose() {
+    player.release();
+    player.dispose();
+    super.dispose();
   }
 
   @override
@@ -72,14 +60,13 @@ class _AudioMessageState extends State<AudioMessage> {
         children: [
           GestureDetector(
             onTap: () {
-              player.setUrl(widget.chat.audio!);
-              if (playerState == PlayerState.playing) {
+              if (playerState == PlayerState.PLAYING) {
                 player.pause();
               } else {
-                player.play();
+                player.play(widget.chat.audio!);
               }
             },
-            child: (playerState == PlayerState.playing)
+            child: (playerState == PlayerState.PLAYING)
                 ? Icon(
                     Icons.pause,
                     color: isSender ? Colors.white : Color(0xFFFF2156),
@@ -94,11 +81,7 @@ class _AudioMessageState extends State<AudioMessage> {
               value: 0,
               max: duration.inSeconds.toDouble(),
               thumbColor: isSender ? Colors.white : Color(0xFFFF2156),
-              onChanged: (position) {
-                setState(() {
-                  player.seek(Duration(seconds: position.toInt()));
-                });
-              },
+              onChanged: (position) {},
             ),
           ),
           Text(

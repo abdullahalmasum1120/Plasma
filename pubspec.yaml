@@ -48,7 +48,7 @@ dependencies:
   uuid: ^3.0.5
   image_picker: ^0.8.4+4
   record: ^3.0.2
-  just_audio: ^0.9.18
+  audioplayers: ^0.20.1
 
 dev_dependencies:
   flutter_test:
