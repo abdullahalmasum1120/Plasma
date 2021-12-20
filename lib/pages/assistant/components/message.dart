@@ -25,17 +25,11 @@ class Message extends StatelessWidget {
     Widget messageContained(ChatMessage message) {
       switch (message.messageType) {
         case "text":
-          return new TextMessage(
-            chat: chat,
-          );
+          return new TextMessage(chat: chat);
         case "audio":
           return new AudioMessage(chat: chat);
-        // case "video":
-        //   return new VideoMessage();
         case "image":
-          return new ImageMessage(
-            chat: chat,
-          );
+          return new ImageMessage(chat: chat);
         default:
           return SizedBox();
       }

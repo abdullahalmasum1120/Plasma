@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
@@ -5,6 +7,7 @@ import 'package:blood_donation/model/assistant/chat_message.dart';
 import 'package:blood_donation/pages/assistant/components/chat_input_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'components/message.dart';
 
 class Assistant extends StatefulWidget {
@@ -16,12 +19,22 @@ class Assistant extends StatefulWidget {
 
 class _AssistantState extends State<Assistant> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _messagesStream;
+  final RefreshController _refreshController = RefreshController();
+  final ScrollController scrollController = ScrollController();
+  int limit = 20;
   List<ChatMessage> chats = <ChatMessage>[];
 
   @override
   void initState() {
     super.initState();
-    _messagesStream = messagesStream;
+    _messagesStream = getMessagesStream(limit);
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -63,15 +76,28 @@ class _AssistantState extends State<Assistant> {
                   if (chats.isEmpty) {
                     return const Center(child: Text("No messages yet"));
                   }
-                  return ListView.builder(
-                    reverse: true,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: MySizes.defaultSpace / 2,
-                    ),
-                    itemCount: chats.length,
-                    itemBuilder: (context, index) {
-                      return Message(chat: chats[index]);
+                  return SmartRefresher(
+                    enablePullUp: true,
+                    enablePullDown: false,
+                    onLoading: () {
+                      setState(() {
+                        _messagesStream = getMessagesStream(limit += 20);
+                      });
+                      _refreshController.loadComplete();
                     },
+                    controller: _refreshController,
+                    child: ListView.builder(
+                      key: const PageStorageKey<String>("scrollKey"),
+                      controller: scrollController,
+                      reverse: true,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: MySizes.defaultSpace / 2,
+                      ),
+                      itemCount: chats.length,
+                      itemBuilder: (context, index) {
+                        return Message(chat: chats[index]);
+                      },
+                    ),
                   );
                 }),
           ),
@@ -84,9 +110,10 @@ class _AssistantState extends State<Assistant> {
     );
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> get messagesStream =>
+  Stream<QuerySnapshot<Map<String, dynamic>>> getMessagesStream(int limit) =>
       FirebaseFirestore.instance
           .collection("assistant")
+          .limit(limit)
           .orderBy("timeStamp", descending: true)
           .snapshots();
 

@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/model/assistant/chat_message.dart';
@@ -19,7 +21,9 @@ class AudioMessage extends StatefulWidget {
 }
 
 class _AudioMessageState extends State<AudioMessage> {
-  late Stream stream;
+  late StreamSubscription<PlayerState> playerStateStream;
+  late StreamSubscription<Duration> progressStream;
+  late StreamSubscription<Duration> durationStream;
   final AudioPlayer player = AudioPlayer();
   PlayerState playerState = PlayerState.PAUSED;
   Duration duration = Duration.zero;
@@ -28,19 +32,19 @@ class _AudioMessageState extends State<AudioMessage> {
   @override
   void initState() {
     super.initState();
-    player.onPlayerStateChanged.listen((PlayerState playerState) {
+     playerStateStream = player.onPlayerStateChanged.listen((PlayerState playerState) {
       if (this.playerState != playerState) {
         setState(() {
           this.playerState = playerState;
         });
       }
     });
-    player.onAudioPositionChanged.listen((Duration progress) {
+    progressStream = player.onAudioPositionChanged.listen((Duration progress) {
       setState(() {
         this.progress = progress;
       });
     });
-    player.onDurationChanged.listen((Duration duration) {
+   durationStream= player.onDurationChanged.listen((Duration duration) {
       setState(() {
         this.duration = duration;
       });
@@ -49,6 +53,9 @@ class _AudioMessageState extends State<AudioMessage> {
 
   @override
   void dispose() {
+    playerStateStream.cancel();
+    durationStream.cancel();
+    progressStream.cancel();
     player.release();
     player.dispose();
     super.dispose();
