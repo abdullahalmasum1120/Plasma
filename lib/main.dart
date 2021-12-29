@@ -1,4 +1,8 @@
-import 'package:blood_donation/pages/splsh/splash.dart';
+import 'package:blood_donation/pages/authentication/authentication.dart';
+import 'package:blood_donation/pages/home/home.dart';
+import 'package:blood_donation/pages/update_user_info/update_user_info.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,9 +21,16 @@ class MyApp extends StatelessWidget {
       future: Firebase.initializeApp(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return const GetMaterialApp(
+          return GetMaterialApp(
             debugShowCheckedModeBanner: false,
-            home: Splash(),
+            home: FutureBuilder<Widget>(
+                future: buildScreen(FirebaseAuth.instance.currentUser),
+                builder: (context, snapshot) {
+                  if(snapshot.hasData){
+                    return snapshot.data!;
+                  }
+                  return Center(child: CircularProgressIndicator());
+                }),
           );
         }
         return const MaterialApp(
@@ -33,4 +44,24 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+}
+
+Future<Widget> buildScreen(User? currentUser) async {
+  if (currentUser != null) {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection("users")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      if (snapshot.data() != null && snapshot.data()!.isNotEmpty) {
+        return Home();
+      } else {
+        return UpdateUserInfo();
+      }
+    } on FirebaseException catch (e) {
+      Get.snackbar("Warning!", "${e.code}.\n Please restart your App");
+    }
+  }
+  return Authentication();
 }
