@@ -510,7 +510,7 @@ class Profile extends StatelessWidget {
                                         onTap: () {
                                           FirebaseAuth.instance.signOut();
                                           Get.offAll(
-                                              () => const Authentication());
+                                              () => const AuthPage());
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.all(

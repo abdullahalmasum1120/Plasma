@@ -12,32 +12,32 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-enum AuthState {
+enum AuthStatee {
   codeSent,
   sendingCode,
   idle,
 }
 
-class Authentication extends StatefulWidget {
-  const Authentication({Key? key}) : super(key: key);
+class AuthPage extends StatefulWidget {
+  const AuthPage({Key? key}) : super(key: key);
 
   @override
-  State<Authentication> createState() => _AuthenticationState();
+  State<AuthPage> createState() => _AuthPageState();
 }
 
-class _AuthenticationState extends State<Authentication> {
+class _AuthPageState extends State<AuthPage> {
   //keys
   final GlobalKey<FormState> _codeFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _phoneFormKey = GlobalKey<FormState>();
 
-  //controllers
+  //repositories
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
 
   //variables
   int? _forceResendingToken;
   int resendDuration = 2 * 60; //2 minutes
-  AuthState authState = AuthState.idle;
+  AuthStatee authState = AuthStatee.idle;
   late Timer _timer;
   late String _verificationId;
 
@@ -85,7 +85,7 @@ class _AuthenticationState extends State<Authentication> {
                       height: MySizes.defaultSpace,
                     ),
                     Text(
-                      "We ${(authState == AuthState.codeSent) ? "have sent" : "will send"} you a 6-digits verification code to this number",
+                      "We ${(authState == AuthStatee.codeSent) ? "have sent" : "will send"} you a 6-digits verification code to this number",
                       style: MyTextStyles(MyColors.black).defaultTextStyle,
                       textAlign: TextAlign.center,
                     ),
@@ -128,32 +128,32 @@ class _AuthenticationState extends State<Authentication> {
                           ),
                           suffix: Material(
                             child: InkWell(
-                              onTap: (authState != AuthState.idle)
+                              onTap: (authState != AuthStatee.idle)
                                   ? null
                                   : () {
                                       //Clickable when authState is Idle
                                       if (_phoneFormKey.currentState!
                                           .validate()) {
                                         setState(() {
-                                          authState = AuthState.sendingCode;
+                                          authState = AuthStatee.sendingCode;
                                         });
 
                                         verifyPhoneNo(); //send verification code
                                       }
                                     },
-                              child: (authState == AuthState.sendingCode)
+                              child: (authState == AuthStatee.sendingCode)
                                   ? Text(
                                       "Sending...",
                                       style: MyTextStyles(MyColors.grey)
                                           .defaultTextStyle,
                                     )
                                   : Text(
-                                      (authState == AuthState.codeSent)
+                                      (authState == AuthStatee.codeSent)
                                           ? "$resendDuration s"
                                           //then authState is idle
                                           : "Get Code",
                                       style: MyTextStyles(
-                                              (authState == AuthState.codeSent)
+                                              (authState == AuthStatee.codeSent)
                                                   ? MyColors.grey
                                                   : MyColors.primary)
                                           .defaultTextStyle,
@@ -161,10 +161,10 @@ class _AuthenticationState extends State<Authentication> {
                             ),
                           ),
                         ),
-                        readOnly: (authState == AuthState.codeSent),
+                        readOnly: (authState == AuthStatee.codeSent),
                       ),
                     ),
-                    (authState == AuthState.codeSent)
+                    (authState == AuthStatee.codeSent)
                         ? Form(
                             key: _codeFormKey,
                             child: TextFormField(
@@ -203,7 +203,7 @@ class _AuthenticationState extends State<Authentication> {
                         style: MyTextStyles(MyColors.white).buttonTextStyle,
                       ),
                       size: MySizes.maxButtonSize,
-                      function: (authState == AuthState.codeSent)
+                      function: (authState == AuthStatee.codeSent)
                           ? () async {
                               if (_codeFormKey.currentState!.validate()) {
                                 if (_verificationId.isNotEmpty) {
@@ -244,7 +244,7 @@ class _AuthenticationState extends State<Authentication> {
       },
       verificationFailed: (FirebaseAuthException e) {
         setState(() {
-          authState = AuthState.idle;
+          authState = AuthStatee.idle;
         });
 
         Get.snackbar("Warning!", e.code);
@@ -254,13 +254,13 @@ class _AuthenticationState extends State<Authentication> {
         this._forceResendingToken = _forceResendingToken;
 
         setState(() {
-          authState = AuthState.codeSent;
+          authState = AuthStatee.codeSent;
         });
         activateTimer();
       },
       codeAutoRetrievalTimeout: (String _verificationId) {
         setState(() {
-          authState = AuthState.idle;
+          authState = AuthStatee.idle;
         });
       },
     );
@@ -283,9 +283,9 @@ class _AuthenticationState extends State<Authentication> {
                   .get();
           if (snapshot.data() != null && snapshot.data()!.isNotEmpty) {
             Navigator.pop(context);
-            Get.offAll(() => const Home());
+            Get.offAll(() => const HomePage());
           } else {
-            Get.offAll(() => const UpdateUserInfo());
+            Get.offAll(() => const UpdateUserInfoPage());
           }
         } on FirebaseException catch (e) {
           Navigator.of(context).pop();
@@ -300,7 +300,7 @@ class _AuthenticationState extends State<Authentication> {
 
   void activateTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (authState == AuthState.codeSent) {
+      if (authState == AuthStatee.codeSent) {
         if (resendDuration <= 0) {
           timer.cancel();
           resendDuration = 120;

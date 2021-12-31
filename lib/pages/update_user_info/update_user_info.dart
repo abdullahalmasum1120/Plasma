@@ -13,17 +13,17 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class UpdateUserInfo extends StatefulWidget {
-  const UpdateUserInfo({
+class UpdateUserInfoPage extends StatefulWidget {
+  const UpdateUserInfoPage({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<UpdateUserInfo> createState() => _UpdateUserInfoState();
+  State<UpdateUserInfoPage> createState() => _UpdateUserInfoPageState();
 }
 
-class _UpdateUserInfoState extends State<UpdateUserInfo> {
-  //controllers
+class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
+  //repositories
   TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController locationController = TextEditingController();
@@ -282,7 +282,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo> {
                   FirebaseAuth.instance.currentUser!
                       .updateDisplayName(username),
                   Navigator.pop(context),
-                  Get.offAll(() => const Home()),
+                  Get.offAll(() => const HomePage()),
                 });
       }
     } on FirebaseAuthException catch (e) {
