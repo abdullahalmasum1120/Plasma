@@ -1,5 +1,5 @@
 import 'package:blood_donation/components/constant/colors.dart';
-import 'package:blood_donation/model/featured_image.dart';
+import 'package:blood_donation/data/model/featured_image.dart';
 import 'package:blood_donation/pages/home/components/appbar.dart';
 import 'package:blood_donation/pages/home/components/blood_request_dialog.dart';
 import 'package:blood_donation/pages/home/components/body.dart';

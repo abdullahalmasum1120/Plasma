@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:blood_donation/components/constant/size.dart';
-import 'package:blood_donation/model/assistant/chat_message.dart';
+import 'package:blood_donation/data/model/assistant/chat_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

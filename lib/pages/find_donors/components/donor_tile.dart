@@ -2,7 +2,7 @@
 
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
-import 'package:blood_donation/model/my_user.dart';
+import 'package:blood_donation/data/model/my_user.dart';
 import 'package:blood_donation/pages/profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';

@@ -1,4 +1,3 @@
-import 'package:blood_donation/data/logic/blocs/auth/auth_bloc.dart';
 import 'package:blood_donation/data/repositories/auth_repository.dart';
 import 'package:blood_donation/pages/authentication/authentication.dart';
 import 'package:blood_donation/pages/home/home.dart';
@@ -8,17 +7,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'data/blocs/app_bloc/app_bloc.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  AuthRepository _authRepository = AuthRepository(_firebaseAuth);
+  await Firebase.initializeApp();
+  final AuthRepository _authRepository = AuthRepository(FirebaseAuth.instance);
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) =>
-              AuthBloc(_authRepository)..add(AppStartedEvent()),
+          create: (context) => AppBloc(_authRepository),
         ),
       ],
       child: const MyApp(),
@@ -31,35 +30,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<FirebaseApp>(
-      future: Firebase.initializeApp(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return GetMaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                if (state is AuthenticatedState) {
-                  return HomePage();
-                }
-                if (state is UserInfoUpdateState) {
-                  return UpdateUserInfoPage();
-                }
-                return AuthPage();
-              },
-            ),
-          );
-        }
-        //TODO: debug necessity
-        return const MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: Center(
-            child: CircularProgressIndicator(
-              color: Colors.white,
-            ),
-          ),
-        );
-      },
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: BlocBuilder<AppBloc, AppState>(
+        builder: (context, state) {
+          if (state == AppState.authenticated()) {
+            return HomePage();
+          }
+          if (state == AppState.updateUserData()) {
+            return UpdateUserDataPage();
+          }
+          return AuthenticationPage();
+        },
+      ),
     );
   }
 }

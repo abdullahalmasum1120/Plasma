@@ -3,11 +3,10 @@
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
-import 'package:blood_donation/model/my_user.dart';
+import 'package:blood_donation/data/model/my_user.dart';
 import 'package:blood_donation/pages/find_donors/components/donor_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'components/search.dart';
 
 class Donors extends StatefulWidget {

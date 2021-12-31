@@ -3,8 +3,8 @@
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
-import 'package:blood_donation/model/grid_item.dart';
-import 'package:blood_donation/model/featured_image.dart';
+import 'package:blood_donation/data/model/featured_image.dart';
+import 'package:blood_donation/data/model/grid_item.dart';
 import 'package:blood_donation/pages/assistant/asistant.dart';
 import 'package:blood_donation/pages/find_donors/donors.dart';
 import 'package:blood_donation/pages/home/components/grid_item.dart';

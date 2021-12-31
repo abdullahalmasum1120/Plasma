@@ -2,7 +2,7 @@
 
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
-import 'package:blood_donation/model/assistant/chat_message.dart';
+import 'package:blood_donation/data/model/assistant/chat_message.dart';
 import 'package:blood_donation/pages/assistant/components/message_types/image_message.dart';
 import 'package:blood_donation/pages/profile/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';

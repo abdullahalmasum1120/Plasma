@@ -4,8 +4,8 @@ import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/dialogs/request_succesful.dart';
-import 'package:blood_donation/model/my_user.dart';
-import 'package:blood_donation/model/received_request.dart';
+import 'package:blood_donation/data/model/my_user.dart';
+import 'package:blood_donation/data/model/received_request.dart';
 import 'package:blood_donation/pages/authentication/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -510,7 +510,7 @@ class Profile extends StatelessWidget {
                                         onTap: () {
                                           FirebaseAuth.instance.signOut();
                                           Get.offAll(
-                                              () => const AuthPage());
+                                              () => const AuthenticationPage());
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.all(

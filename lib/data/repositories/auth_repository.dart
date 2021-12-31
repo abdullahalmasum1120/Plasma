@@ -1,49 +1,82 @@
+import 'package:blood_donation/data/model/my_user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-abstract class Auth {
-  sendOtp(String phone);
+abstract class AuthProvider {
+  Future<void> sendOtp({
+    required String phone,
+    required PhoneVerificationCompleted phoneVerificationCompleted,
+    required PhoneVerificationFailed phoneVerificationFailed,
+    required PhoneCodeSent phoneCodeSent,
+    required PhoneCodeAutoRetrievalTimeout phoneCodeAutoRetrievalTimeout,
+  });
 
-  signInWithVerificationId(String verificationId, String otp);
+  Future<UserCredential> signInWithVerificationId(
+      String verificationId, String otp);
 
-  signInWithCredentials(PhoneAuthCredential phoneAuthCredential);
+  Future<UserCredential> signInWithCredentials(
+      PhoneAuthCredential phoneAuthCredential);
 
-  signOut(FirebaseAuth firebaseAuth);
+  Future<void> signOut();
 
-  isSignedIn(FirebaseAuth firebaseAuth);
+  bool isSignedIn();
+
+  Future<MyUser> get currentUser;
 }
 
-class AuthRepository extends Auth {
+class AuthRepository extends AuthProvider {
   final FirebaseAuth firebaseAuth;
 
   AuthRepository(this.firebaseAuth);
 
   @override
-  sendOtp(String phone) {
-    // TODO: implement sendOtp
-    throw UnimplementedError();
+  Future<void> sendOtp({
+    required String phone,
+    required PhoneVerificationCompleted phoneVerificationCompleted,
+    required PhoneVerificationFailed phoneVerificationFailed,
+    required PhoneCodeSent phoneCodeSent,
+    required PhoneCodeAutoRetrievalTimeout phoneCodeAutoRetrievalTimeout,
+  }) {
+    return firebaseAuth.verifyPhoneNumber(
+      phoneNumber: phone,
+      verificationCompleted: phoneVerificationCompleted,
+      verificationFailed: phoneVerificationFailed,
+      codeSent: phoneCodeSent,
+      codeAutoRetrievalTimeout: phoneCodeAutoRetrievalTimeout,
+    );
   }
 
   @override
-  signInWithCredentials(PhoneAuthCredential phoneAuthCredential) {
-    // TODO: implement signInWithCredentials
-    throw UnimplementedError();
+  Future<UserCredential> signInWithCredentials(
+      PhoneAuthCredential phoneAuthCredential) {
+    return firebaseAuth.signInWithCredential(phoneAuthCredential);
   }
 
   @override
-  signInWithVerificationId(String verificationId, String otp) {
-    // TODO: implement signInWithVerificationId
-    throw UnimplementedError();
+  Future<UserCredential> signInWithVerificationId(
+      String verificationId, String otp) {
+    PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
+        verificationId: verificationId, smsCode: otp);
+    return signInWithCredentials(phoneAuthCredential);
   }
 
   @override
-  signOut(FirebaseAuth firebaseAuth) {
-    // TODO: implement signOut
-    throw UnimplementedError();
+  Future<void> signOut() {
+    return firebaseAuth.signOut();
   }
 
   @override
-  isSignedIn(FirebaseAuth firebaseAuth) {
-    // TODO: implement isSignedIn
-    throw UnimplementedError();
+  bool isSignedIn() {
+    return firebaseAuth.currentUser != null;
+  }
+
+  @override
+  Future<MyUser> get currentUser async {
+    DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+        .instance
+        .collection("users")
+        .doc(firebaseAuth.currentUser!.uid)
+        .get();
+    return MyUser.fromJson(snapshot.data()!);
   }
 }

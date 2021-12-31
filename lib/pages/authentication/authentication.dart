@@ -18,14 +18,14 @@ enum AuthStatee {
   idle,
 }
 
-class AuthPage extends StatefulWidget {
-  const AuthPage({Key? key}) : super(key: key);
+class AuthenticationPage extends StatefulWidget {
+  const AuthenticationPage({Key? key}) : super(key: key);
 
   @override
-  State<AuthPage> createState() => _AuthPageState();
+  State<AuthenticationPage> createState() => _AuthenticationPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
+class _AuthenticationPageState extends State<AuthenticationPage> {
   //keys
   final GlobalKey<FormState> _codeFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _phoneFormKey = GlobalKey<FormState>();
@@ -285,7 +285,7 @@ class _AuthPageState extends State<AuthPage> {
             Navigator.pop(context);
             Get.offAll(() => const HomePage());
           } else {
-            Get.offAll(() => const UpdateUserInfoPage());
+            Get.offAll(() => const UpdateUserDataPage());
           }
         } on FirebaseException catch (e) {
           Navigator.of(context).pop();

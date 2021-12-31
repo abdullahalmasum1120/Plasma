@@ -4,7 +4,7 @@ import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/filled_Button.dart';
-import 'package:blood_donation/model/my_user.dart';
+import 'package:blood_donation/data/model/my_user.dart';
 import 'package:blood_donation/pages/home/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,16 +13,16 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class UpdateUserInfoPage extends StatefulWidget {
-  const UpdateUserInfoPage({
+class UpdateUserDataPage extends StatefulWidget {
+  const UpdateUserDataPage({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<UpdateUserInfoPage> createState() => _UpdateUserInfoPageState();
+  State<UpdateUserDataPage> createState() => _UpdateUserDataPageState();
 }
 
-class _UpdateUserInfoPageState extends State<UpdateUserInfoPage> {
+class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
   //repositories
   TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();

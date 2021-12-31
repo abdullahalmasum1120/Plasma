@@ -1,7 +1,7 @@
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/components/dialogs/loading.dart';
-import 'package:blood_donation/model/received_request.dart';
+import 'package:blood_donation/data/model/received_request.dart';
 import 'package:blood_donation/pages/profile/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
-class Notifications extends StatelessWidget {
+class Notifications extends StatelessWidget{
   List<ReceivedRequest> receivedRequests = <ReceivedRequest>[];
 
   Notifications({
@@ -92,8 +92,8 @@ class Notifications extends StatelessWidget {
                         //navigate to page
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                          return Profile(uid: receivedRequests[index].uid!);
-                        }));
+                              return Profile(uid: receivedRequests[index].uid!);
+                            }));
                       } on FirebaseException catch (e) {
                         Get.snackbar("Warning!", e.code);
                       }
@@ -104,9 +104,9 @@ class Notifications extends StatelessWidget {
                           shape: BoxShape.circle,
                           border: (receivedRequests[index].status == "unread")
                               ? Border.all(
-                                  color: MyColors.primary,
-                                  width: 3,
-                                )
+                            color: MyColors.primary,
+                            width: 3,
+                          )
                               : null,
                         ),
                         child: SvgPicture.asset(
@@ -125,4 +125,5 @@ class Notifications extends StatelessWidget {
           }),
     );
   }
+
 }

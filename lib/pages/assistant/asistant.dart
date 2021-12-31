@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
-import 'package:blood_donation/model/assistant/chat_message.dart';
+import 'package:blood_donation/data/model/assistant/chat_message.dart';
 import 'package:blood_donation/pages/assistant/components/chat_input_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
