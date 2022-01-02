@@ -39,6 +39,7 @@ class AuthRepository extends AuthProvider {
   }) {
     return firebaseAuth.verifyPhoneNumber(
       phoneNumber: phone,
+      timeout: Duration(minutes: 2),
       verificationCompleted: phoneVerificationCompleted,
       verificationFailed: phoneVerificationFailed,
       codeSent: phoneCodeSent,

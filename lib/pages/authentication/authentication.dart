@@ -1,22 +1,13 @@
-import 'dart:async';
 import 'package:blood_donation/components/assentials/data_validator.dart';
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/filled_Button.dart';
-import 'package:blood_donation/pages/home/home.dart';
-import 'package:blood_donation/pages/update_user_info/update_user_info.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:blood_donation/data/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-
-enum AuthStatee {
-  codeSent,
-  sendingCode,
-  idle,
-}
 
 class AuthenticationPage extends StatefulWidget {
   const AuthenticationPage({Key? key}) : super(key: key);
@@ -34,18 +25,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
 
-  //variables
-  int? _forceResendingToken;
   int resendDuration = 2 * 60; //2 minutes
-  AuthStatee authState = AuthStatee.idle;
-  late Timer _timer;
-  late String _verificationId;
 
   @override
   void dispose() {
     _phoneController.dispose();
     _codeController.dispose();
-    _timer.cancel();
 
     super.dispose();
   }
@@ -53,7 +38,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false, //override system back button
+      onWillPop: () async => false,
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(FocusScopeNode());
@@ -64,167 +49,172 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(MySizes.defaultSpace),
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: MySizes.defaultSpace * 1.5,
-                    ),
-                    Image.asset(
-                      "assets/images/phone_auth.png",
-                      scale: context.height * 0.01,
-                    ),
-                    const SizedBox(
-                      height: MySizes.defaultSpace * 2,
-                    ),
-                    Text(
-                      "Verify your phone",
-                      style: MyTextStyles(MyColors.primary).largeTextStyle,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(
-                      height: MySizes.defaultSpace,
-                    ),
-                    Text(
-                      "We ${(authState == AuthStatee.codeSent) ? "have sent" : "will send"} you a 6-digits verification code to this number",
-                      style: MyTextStyles(MyColors.black).defaultTextStyle,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(
-                      height: MySizes.defaultSpace,
-                    ),
-                    Form(
-                      key: _phoneFormKey,
-                      child: TextFormField(
-                        controller: _phoneController,
-                        validator: (phone) {
-                          if (DataValidator.isValidatePhone(phone!.trim())) {
-                            return null;
-                          }
-                          return "Please provide a valid Phone number";
-                        },
-                        keyboardType: TextInputType.phone,
-                        maxLength: 11,
-                        style: MyTextStyles(MyColors.black).buttonTextStyle,
-                        decoration: InputDecoration(
-                          fillColor: MyColors.textFieldBackground,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(MySizes.defaultRadius),
-                          ),
-                          hintText: "Phone No",
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: MySizes.defaultSpace,
-                          ),
-                          prefixIcon: const Padding(
-                            padding: EdgeInsets.only(
-                              left: MySizes.defaultSpace,
-                              right: MySizes.defaultSpace * 0.5,
-                            ),
-                            child: Icon(
-                              Icons.call_rounded,
-                              color: MyColors.primary,
-                            ),
-                          ),
-                          suffix: Material(
-                            child: InkWell(
-                              onTap: (authState != AuthStatee.idle)
-                                  ? null
-                                  : () {
-                                      //Clickable when authState is Idle
-                                      if (_phoneFormKey.currentState!
-                                          .validate()) {
-                                        setState(() {
-                                          authState = AuthStatee.sendingCode;
-                                        });
-
-                                        verifyPhoneNo(); //send verification code
-                                      }
-                                    },
-                              child: (authState == AuthStatee.sendingCode)
-                                  ? Text(
-                                      "Sending...",
-                                      style: MyTextStyles(MyColors.grey)
-                                          .defaultTextStyle,
-                                    )
-                                  : Text(
-                                      (authState == AuthStatee.codeSent)
-                                          ? "$resendDuration s"
-                                          //then authState is idle
-                                          : "Get Code",
-                                      style: MyTextStyles(
-                                              (authState == AuthStatee.codeSent)
-                                                  ? MyColors.grey
-                                                  : MyColors.primary)
-                                          .defaultTextStyle,
-                                    ),
-                            ),
-                          ),
+                child: BlocConsumer<AuthBloc, AuthState>(
+                  listener: (context, state) {
+                    if (state is OtpVerifyingState) {
+                      //TODO: debug this on Homepage showing
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Loading();
+                          });
+                    }
+                  },
+                  builder: (context, state) {
+                    return Column(
+                      children: [
+                        const SizedBox(
+                          height: MySizes.defaultSpace * 1.5,
                         ),
-                        readOnly: (authState == AuthStatee.codeSent),
-                      ),
-                    ),
-                    (authState == AuthStatee.codeSent)
-                        ? Form(
-                            key: _codeFormKey,
-                            child: TextFormField(
-                              controller: _codeController,
-                              validator: (code) {
-                                if (DataValidator.isValidateCode(code!)) {
-                                  return null;
-                                }
-                                return "Invalid Code";
-                              },
-                              keyboardType: TextInputType.number,
-                              maxLength: 6,
-                              style:
-                                  MyTextStyles(MyColors.black).buttonTextStyle,
-                              decoration: InputDecoration(
-                                fillColor: MyColors.textFieldBackground,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      MySizes.defaultRadius),
+                        Image.asset(
+                          "assets/images/phone_auth.png",
+                          scale: context.height * 0.01,
+                        ),
+                        const SizedBox(
+                          height: MySizes.defaultSpace * 2,
+                        ),
+                        Text(
+                          "Verify your phone",
+                          style: MyTextStyles(MyColors.primary).largeTextStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: MySizes.defaultSpace,
+                        ),
+                        Text(
+                          "We ${(state is OtpSentState) ? "have sent" : "will send"} you a 6-digits verification code to this number",
+                          style: MyTextStyles(MyColors.black).defaultTextStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: MySizes.defaultSpace,
+                        ),
+                        Form(
+                          key: _phoneFormKey,
+                          child: TextFormField(
+                            controller: _phoneController,
+                            validator: (phone) {
+                              if (DataValidator.isValidatePhone(
+                                  phone!.trim())) {
+                                return null;
+                              }
+                              return "Please provide a valid Phone number";
+                            },
+                            keyboardType: TextInputType.phone,
+                            maxLength: 11,
+                            style: MyTextStyles(MyColors.black).buttonTextStyle,
+                            decoration: InputDecoration(
+                              fillColor: MyColors.textFieldBackground,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                    MySizes.defaultRadius),
+                              ),
+                              hintText: "Phone No",
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: MySizes.defaultSpace,
+                              ),
+                              prefixIcon: const Padding(
+                                padding: EdgeInsets.only(
+                                  left: MySizes.defaultSpace,
+                                  right: MySizes.defaultSpace * 0.5,
                                 ),
-                                hintText: "6-digit Verification Code",
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: MySizes.defaultSpace,
+                                child: Icon(
+                                  Icons.call_rounded,
+                                  color: MyColors.primary,
+                                ),
+                              ),
+                              suffix: Material(
+                                child: InkWell(
+                                  onTap: (state is AuthInitial ||
+                                          state is OtpTimeOutState)
+                                      ? () {
+                                          if (_phoneFormKey.currentState!
+                                              .validate()) {
+                                            BlocProvider.of<AuthBloc>(context)
+                                                .add(SendOtpEvent(
+                                                    _phoneController.text
+                                                        .trim()));
+                                          }
+                                        }
+                                      : null,
+                                  child: (state is OtpSendingState)
+                                      ? Text(
+                                          "Sending...",
+                                          style: MyTextStyles(MyColors.grey)
+                                              .defaultTextStyle,
+                                        )
+                                      : Text(
+                                          (state is OtpSentState)
+                                              ? "$resendDuration s"
+                                              : (state is OtpTimeOutState)
+                                                  ? "Resend"
+                                                  : "Get Code",
+                                          style: MyTextStyles(
+                                                  (state is OtpSentState)
+                                                      ? MyColors.grey
+                                                      : MyColors.primary)
+                                              .defaultTextStyle,
+                                        ),
                                 ),
                               ),
                             ),
-                          )
-                        : const SizedBox(),
-                    const SizedBox(
-                      height: MySizes.defaultSpace,
-                    ),
-                    MyFilledButton(
-                      child: Text(
-                        "Confirm",
-                        style: MyTextStyles(MyColors.white).buttonTextStyle,
-                      ),
-                      size: MySizes.maxButtonSize,
-                      function: (authState == AuthStatee.codeSent)
-                          ? () async {
-                              if (_codeFormKey.currentState!.validate()) {
-                                if (_verificationId.isNotEmpty) {
-                                  showDialog(
-                                      barrierDismissible: false,
-                                      context: context,
-                                      builder: (context) {
-                                        return const Loading();
-                                      });
-
-                                  signIn(_verificationId); //signing in
-                                } else {
-                                  Get.snackbar("Warning!",
-                                      "Something went wrong, Try again after some time.");
+                            readOnly: (state is OtpSentState),
+                          ),
+                        ),
+                        (state is OtpSentState)
+                            ? Form(
+                                key: _codeFormKey,
+                                child: TextFormField(
+                                  controller: _codeController,
+                                  validator: (code) {
+                                    if (DataValidator.isValidateCode(code!)) {
+                                      return null;
+                                    }
+                                    return "Invalid Code";
+                                  },
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 6,
+                                  style: MyTextStyles(MyColors.black)
+                                      .buttonTextStyle,
+                                  decoration: InputDecoration(
+                                    fillColor: MyColors.textFieldBackground,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          MySizes.defaultRadius),
+                                    ),
+                                    hintText: "6-digit Verification Code",
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: MySizes.defaultSpace,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox(),
+                        const SizedBox(
+                          height: MySizes.defaultSpace,
+                        ),
+                        MyFilledButton(
+                          child: Text(
+                            "Confirm",
+                            style: MyTextStyles(MyColors.white).buttonTextStyle,
+                          ),
+                          size: MySizes.maxButtonSize,
+                          function: (state is OtpSentState)
+                              ? () async {
+                                  if (_codeFormKey.currentState!.validate()) {
+                                    BlocProvider.of<AuthBloc>(context).add(
+                                        VerifyOtpEvent(state.verificationId,
+                                            _codeController.text.trim()));
+                                  }
                                 }
-                              }
-                            }
-                          : null,
-                      borderRadius: MySizes.defaultRadius,
-                    ),
-                  ],
+                              : null,
+                          borderRadius: MySizes.defaultRadius,
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -232,86 +222,5 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         ),
       ),
     );
-  }
-
-  void verifyPhoneNo() {
-    FirebaseAuth.instance.verifyPhoneNumber(
-      forceResendingToken: _forceResendingToken,
-      timeout: const Duration(minutes: 2),
-      phoneNumber: "+88${_phoneController.text.trim()}",
-      verificationCompleted: (PhoneAuthCredential _phoneAuthCredential) async {
-        // TODO: implement auto signIn();
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        setState(() {
-          authState = AuthStatee.idle;
-        });
-
-        Get.snackbar("Warning!", e.code);
-      },
-      codeSent: (String _verificationId, int? _forceResendingToken) {
-        this._verificationId = _verificationId;
-        this._forceResendingToken = _forceResendingToken;
-
-        setState(() {
-          authState = AuthStatee.codeSent;
-        });
-        activateTimer();
-      },
-      codeAutoRetrievalTimeout: (String _verificationId) {
-        setState(() {
-          authState = AuthStatee.idle;
-        });
-      },
-    );
-  }
-
-  void signIn(String _verificationId) async {
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithCredential(PhoneAuthProvider.credential(
-        verificationId: _verificationId,
-        smsCode: _codeController.text.trim(),
-      ));
-      //navigating to desired page after signIn
-      if (userCredential.user != null) {
-        try {
-          DocumentSnapshot<Map<String, dynamic>> snapshot =
-              await FirebaseFirestore.instance
-                  .collection("users")
-                  .doc(userCredential.user!.uid)
-                  .get();
-          if (snapshot.data() != null && snapshot.data()!.isNotEmpty) {
-            Navigator.pop(context);
-            Get.offAll(() => const HomePage());
-          } else {
-            Get.offAll(() => const UpdateUserDataPage());
-          }
-        } on FirebaseException catch (e) {
-          Navigator.of(context).pop();
-          Get.snackbar("Warning!", e.code);
-        }
-      }
-    } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-      Get.snackbar("Warning!", e.code);
-    }
-  }
-
-  void activateTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (authState == AuthStatee.codeSent) {
-        if (resendDuration <= 0) {
-          timer.cancel();
-          resendDuration = 120;
-        }
-        setState(() {
-          resendDuration--;
-        });
-      } else {
-        timer.cancel();
-        resendDuration = 120;
-      }
-    });
   }
 }

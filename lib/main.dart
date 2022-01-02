@@ -1,3 +1,4 @@
+import 'package:blood_donation/data/blocs/auth_bloc/auth_bloc.dart';
 import 'package:blood_donation/data/repositories/auth_repository.dart';
 import 'package:blood_donation/pages/authentication/authentication.dart';
 import 'package:blood_donation/pages/home/home.dart';
@@ -7,7 +8,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'data/blocs/app_bloc/app_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +17,7 @@ Future<void> main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => AppBloc(_authRepository),
+          create: (context) => AuthBloc(_authRepository),
         ),
       ],
       child: const MyApp(),
@@ -32,12 +32,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BlocBuilder<AppBloc, AppState>(
+      home: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
-          if (state == AppState.authenticated()) {
+          if (state is AuthenticatedState) {
             return HomePage();
           }
-          if (state == AppState.updateUserData()) {
+          if (state is UpdateUserDataState) {
             return UpdateUserDataPage();
           }
           return AuthenticationPage();
