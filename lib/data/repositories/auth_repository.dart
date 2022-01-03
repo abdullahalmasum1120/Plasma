@@ -1,30 +1,9 @@
+import 'package:blood_donation/data/interfaces/auth_repo_interface.dart';
 import 'package:blood_donation/data/model/my_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-abstract class AuthProvider {
-  Future<void> sendOtp({
-    required String phone,
-    required PhoneVerificationCompleted phoneVerificationCompleted,
-    required PhoneVerificationFailed phoneVerificationFailed,
-    required PhoneCodeSent phoneCodeSent,
-    required PhoneCodeAutoRetrievalTimeout phoneCodeAutoRetrievalTimeout,
-  });
-
-  Future<UserCredential> signInWithVerificationId(
-      String verificationId, String otp);
-
-  Future<UserCredential> signInWithCredentials(
-      PhoneAuthCredential phoneAuthCredential);
-
-  Future<void> signOut();
-
-  bool isSignedIn();
-
-  Future<MyUser> get currentUser;
-}
-
-class AuthRepository extends AuthProvider {
+class AuthRepository extends AuthRepoInterface {
   final FirebaseAuth firebaseAuth;
 
   AuthRepository(this.firebaseAuth);
@@ -32,6 +11,7 @@ class AuthRepository extends AuthProvider {
   @override
   Future<void> sendOtp({
     required String phone,
+    required Duration duration,
     required PhoneVerificationCompleted phoneVerificationCompleted,
     required PhoneVerificationFailed phoneVerificationFailed,
     required PhoneCodeSent phoneCodeSent,
@@ -39,7 +19,7 @@ class AuthRepository extends AuthProvider {
   }) {
     return firebaseAuth.verifyPhoneNumber(
       phoneNumber: phone,
-      timeout: Duration(minutes: 2),
+      timeout: duration,
       verificationCompleted: phoneVerificationCompleted,
       verificationFailed: phoneVerificationFailed,
       codeSent: phoneCodeSent,
