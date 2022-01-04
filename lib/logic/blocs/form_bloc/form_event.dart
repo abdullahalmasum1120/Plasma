@@ -24,3 +24,27 @@ class OtpFormChangedEvent extends AuthFormEvent {
   @override
   List<Object> get props => [otp];
 }
+class NameFormChangedEvent extends AuthFormEvent {
+  final String name;
+
+  const NameFormChangedEvent({required this.name});
+
+  @override
+  List<Object> get props => [name];
+}
+class EmailFormChangedEvent extends AuthFormEvent {
+  final String email;
+
+  const EmailFormChangedEvent({required this.email});
+
+  @override
+  List<Object> get props => [email];
+}
+class LocationFormChangedEvent extends AuthFormEvent {
+  final String location;
+
+  const LocationFormChangedEvent({required this.location});
+
+  @override
+  List<Object> get props => [location];
+}

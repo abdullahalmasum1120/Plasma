@@ -58,6 +58,9 @@ class AuthRepository extends AuthRepoInterface {
         .collection("users")
         .doc(firebaseAuth.currentUser!.uid)
         .get();
-    return MyUser.fromJson(snapshot.data()!);
+    if (snapshot.data() != null) {
+      return MyUser.fromJson(snapshot.data()!);
+    }
+    return MyUser();
   }
 }

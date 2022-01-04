@@ -18,7 +18,8 @@ class AuthenticationPage extends StatefulWidget {
 }
 
 class _AuthenticationPageState extends State<AuthenticationPage> {
-  final GlobalKey<FormState> _authFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _codeFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _phoneFormKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
 
@@ -31,59 +32,82 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthFormBloc(FormRepository()),
-      child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(FocusScopeNode());
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AuthFormBloc(FormRepository()),
+        ),
+        BlocProvider(
+          create: (context) => TimerBloc(ticker: Ticker()),
+        ),
+      ],
+      child: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, authState) {
+          if (authState is OtpSentState) {
+            context.read<TimerBloc>().add(TimerStarted(duration: 60 * 2));
+          } else {
+            context.read<TimerBloc>().add(TimerReset());
+          }
+          if (authState is AuthenticationFailedState) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(authState.firebaseAuthException.code),
+              duration: Duration(seconds: 4),
+            ));
+            context.read<AuthBloc>().add(AppStartedEvent());
+          }
         },
-        child: Scaffold(
-          backgroundColor: MyColors.white,
-          body: Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(MySizes.defaultSpace),
-                child: BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, authState) {
-                    print(authState);
-                    return Form(
-                      key: _authFormKey,
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: MySizes.defaultSpace * 1.5,
-                          ),
-                          Image.asset(
-                            "assets/images/phone_auth.png",
-                            scale: context.height * 0.01,
-                          ),
-                          const SizedBox(
-                            height: MySizes.defaultSpace * 2,
-                          ),
-                          Text(
-                            "Verify your phone",
-                            style:
-                                MyTextStyles(MyColors.primary).largeTextStyle,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(
-                            height: MySizes.defaultSpace,
-                          ),
-                          Text(
-                            "We ${(authState is OtpSentState) ? "have sent" : "will send"} you a 6-digits verification code to this number",
-                            style:
-                                MyTextStyles(MyColors.black).defaultTextStyle,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(
-                            height: MySizes.defaultSpace,
-                          ),
-                          BlocBuilder<AuthFormBloc, AuthFormState>(
-                            builder: (context, authFormState) {
-                              return TextFormField(
+        builder: (context, authState) {
+          return GestureDetector(
+            onTap: () {
+              FocusScope.of(context).requestFocus(FocusScopeNode());
+            },
+            child: Scaffold(
+              backgroundColor: MyColors.white,
+              body: Center(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(MySizes.defaultSpace),
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: MySizes.defaultSpace * 1.5,
+                        ),
+                        Image.asset(
+                          "assets/images/phone_auth.png",
+                          scale: context.height * 0.01,
+                        ),
+                        const SizedBox(
+                          height: MySizes.defaultSpace * 2,
+                        ),
+                        Text(
+                          "Verify your phone",
+                          style: MyTextStyles(MyColors.primary).largeTextStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: MySizes.defaultSpace,
+                        ),
+                        Text(
+                          "We ${(authState is OtpSentState) ? "have sent" : "will send"} you a 6-digits verification code to this number",
+                          style: MyTextStyles(MyColors.black).defaultTextStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: MySizes.defaultSpace,
+                        ),
+                        BlocBuilder<AuthFormBloc, AuthFormState>(
+                          builder: (context, authFormState) {
+                            return Form(
+                              key: _phoneFormKey,
+                              child: TextFormField(
                                 controller: _phoneController,
-                                validator: (phone) {
+                                validator: (String? phone) {
                                   if (authFormState is PhoneFormState &&
                                       authFormState.isValidPhone) {
                                     return null;
@@ -94,7 +118,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                   context.read<AuthFormBloc>().add(
                                         PhoneFormChangedEvent(phone: phone),
                                       );
-                                  print(authFormState);
                                 },
                                 keyboardType: TextInputType.phone,
                                 style: MyTextStyles(MyColors.black)
@@ -120,76 +143,79 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                       color: MyColors.primary,
                                     ),
                                   ),
-                                  suffix: Visibility(
-                                    visible: (authFormState is PhoneFormState &&
-                                        authFormState.isValidPhone),
-                                    child: Material(
-                                      child: InkWell(
-                                        onTap: ((authState is AuthInitial ||
+                                  suffix: (authFormState is PhoneFormState &&
+                                          authFormState.isValidPhone)
+                                      ? Material(
+                                          child: InkWell(
+                                            onTap: (authState is AuthInitial ||
                                                     authState
-                                                        is OtpTimeOutState ||
-                                                    authState
-                                                        is AuthenticationFailedState) &&
-                                                (authFormState
-                                                        is PhoneFormState &&
-                                                    authFormState.isValidPhone))
-                                            ? () {
-                                                context.read<AuthBloc>().add(
-                                                    SendOtpEvent(
-                                                        _phoneController.text
-                                                            .trim()));
-                                              }
-                                            : null,
-                                        child:
-                                            BlocBuilder<TimerBloc, TimerState>(
-                                          builder: (context, timerState) {
-                                            return Text(
-                                              (authState is OtpSentState)
-                                                  ? timerState.duration
-                                                      .toString()
-                                                  : (authState
-                                                          is OtpTimeOutState)
-                                                      ? "Resend"
+                                                        is OtpTimeOutState)
+                                                ? () {
+                                                    context
+                                                        .read<AuthBloc>()
+                                                        .add(SendOtpEvent(
+                                                            _phoneController
+                                                                .text
+                                                                .trim()));
+                                                  }
+                                                : null,
+                                            child: BlocBuilder<TimerBloc,
+                                                TimerState>(
+                                              builder: (context, timerState) {
+                                                return Text(
+                                                  (authState is OtpSentState)
+                                                      ? timerState.duration
+                                                          .toString()
                                                       : (authState
-                                                              is OtpSendingState)
-                                                          ? "sending..."
-                                                          : "Get Code",
-                                              style: MyTextStyles((authState
-                                                              is OtpSentState ||
-                                                          authState
-                                                              is OtpSendingState)
-                                                      ? MyColors.grey
-                                                      : MyColors.primary)
-                                                  .defaultTextStyle,
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                                              is OtpTimeOutState)
+                                                          ? "Resend"
+                                                          : (authState
+                                                                  is OtpSendingState)
+                                                              ? "sending..."
+                                                              : "Get Code",
+                                                  style: MyTextStyles((authState
+                                                                  is OtpSentState ||
+                                                              authState
+                                                                  is OtpSendingState)
+                                                          ? MyColors.grey
+                                                          : MyColors.primary)
+                                                      .defaultTextStyle,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        )
+                                      : null,
                                 ),
                                 readOnly: (authState is OtpSentState),
-                              );
-                            },
-                          ),
-                          SizedBox(
-                            height: MySizes.defaultSpace,
-                          ),
-                          BlocBuilder<AuthFormBloc, AuthFormState>(
-                            builder: (context, authFormState) {
-                              return Visibility(
-                                visible: (authState is OtpSentState),
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(
+                          height: MySizes.defaultSpace,
+                        ),
+                        BlocBuilder<AuthFormBloc, AuthFormState>(
+                          builder: (context, authFormState) {
+                            return Visibility(
+                              visible: (authState is OtpSentState),
+                              child: Form(
+                                key: _codeFormKey,
                                 child: TextFormField(
                                   controller: _codeController,
-                                  validator: (code) {
+                                  validator: (String? code) {
                                     if (authFormState is OtpFormState &&
                                         authFormState.isOtpValid) {
                                       return null;
                                     }
-                                    return "Invalid otp";
+                                    return "Otp is not correct";
+                                  },
+                                  onChanged: (String otp) {
+                                    context.read<AuthFormBloc>().add(
+                                          OtpFormChangedEvent(otp: otp),
+                                        );
                                   },
                                   keyboardType: TextInputType.number,
-                                  maxLength: 6,
                                   style: MyTextStyles(MyColors.black)
                                       .buttonTextStyle,
                                   decoration: InputDecoration(
@@ -205,42 +231,50 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                     ),
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-                          const SizedBox(
-                            height: MySizes.defaultSpace,
-                          ),
-                          MyFilledButton(
-                            child: Text(
-                              (authState is OtpVerifyingState)
-                                  ? "Verifying"
-                                  : "Confirm",
-                              style:
-                                  MyTextStyles(MyColors.white).buttonTextStyle,
-                            ),
-                            size: MySizes.maxButtonSize,
-                            function: (authState is OtpSentState)
-                                ? () async {
-                                    if (_authFormKey.currentState!.validate()) {
-                                      context.read<AuthBloc>().add(
-                                          VerifyOtpEvent(
-                                              authState.verificationId,
-                                              _codeController.text.trim()));
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(
+                          height: MySizes.defaultSpace,
+                        ),
+                        BlocBuilder<AuthFormBloc, AuthFormState>(
+                          builder: (context, authFormState) {
+                            return MyFilledButton(
+                              child: Text(
+                                (authState is OtpVerifyingState)
+                                    ? "Verifying"
+                                    : "Confirm",
+                                style: MyTextStyles(MyColors.white)
+                                    .buttonTextStyle,
+                              ),
+                              size: MySizes.maxButtonSize,
+                              function: (authState is OtpSentState &&
+                                      authFormState is OtpFormState &&
+                                      authFormState.isOtpValid)
+                                  ? () async {
+                                      if (_codeFormKey.currentState!
+                                          .validate()) {
+                                        context.read<AuthBloc>().add(
+                                            VerifyOtpEvent(
+                                                authState.verificationId,
+                                                _codeController.text.trim()));
+                                        _codeController.text = "";
+                                      }
                                     }
-                                  }
-                                : null,
-                            borderRadius: MySizes.defaultRadius,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                                  : null,
+                              borderRadius: MySizes.defaultRadius,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:blood_donation/data/model/my_user.dart';
 import 'package:blood_donation/data/repositories/auth_repository.dart';
@@ -14,10 +12,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   final Duration duration = Duration(minutes: 2);
 
-  AuthBloc(this._authRepository)
-      : super(_authRepository.isSignedIn()
-            ? AuthenticatedState()
-            : AuthInitial()) {
+  AuthBloc(this._authRepository) : super(AuthInitial()) {
+    on<AppStartedEvent>((event, emit) {
+      if (_authRepository.isSignedIn()) {
+        add(AuthenticatedEvent());
+      } else {
+        emit(AuthInitial());
+      }
+    });
     on<SendOtpEvent>((event, emit) async {
       add(OtpSendingEvent());
       await _authRepository.sendOtp(
@@ -25,9 +27,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           phone: "+88${event.phone}",
           phoneVerificationCompleted:
               (PhoneAuthCredential phoneAuthCredential) async {
-            UserCredential userCredential = await _authRepository
-                .signInWithCredentials(phoneAuthCredential);
-            add(AuthenticatedEvent(userCredential));
+            await _authRepository.signInWithCredentials(phoneAuthCredential);
+            add(AuthenticatedEvent());
           },
           phoneVerificationFailed:
               (FirebaseAuthException firebaseAuthException) {
@@ -44,7 +45,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthenticatedEvent>((event, emit) async {
       MyUser myUser = await _authRepository.currentUser;
       if (myUser.uid != null) {
-        emit(AuthenticatedState());
+        emit(SignedInState());
       } else {
         emit(UpdateUserDataState());
       }
@@ -65,10 +66,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
     on<VerifyOtpEvent>((event, emit) async {
       emit(OtpVerifyingState());
-      UserCredential userCredential = await _authRepository
-          .signInWithVerificationId(event.verificationId, event.otp);
-      add(AuthenticatedEvent(userCredential));
+      await _authRepository.signInWithVerificationId(
+          event.verificationId, event.otp);
+      add(AuthenticatedEvent());
     });
   }
-
 }

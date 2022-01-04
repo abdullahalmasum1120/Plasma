@@ -9,11 +9,6 @@ class AuthInitial extends AuthState {
   List<Object> get props => [];
 }
 
-class AuthenticatedState extends AuthState {
-  @override
-  List<Object> get props => [];
-}
-
 class AuthenticationFailedState extends AuthState {
   final FirebaseAuthException firebaseAuthException;
 
@@ -53,6 +48,10 @@ class UpdateUserDataState extends AuthState {
 }
 
 class OtpVerifyingState extends AuthState {
+  @override
+  List<Object?> get props => [];
+}
+class SignedInState extends AuthState {
   @override
   List<Object?> get props => [];
 }

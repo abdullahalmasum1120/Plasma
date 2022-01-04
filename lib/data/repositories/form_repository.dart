@@ -5,8 +5,8 @@ class FormRepository extends FormRepoInterface {
     return super.emailRegEx.hasMatch(email);
   }
 
-  bool isValidatePassword(String password) {
-    return super.passwordRegex.hasMatch(password);
+  bool isValidateLocation(String location) {
+    return super.locationRegex.hasMatch(location);
   }
 
   bool isValidatePhone(String phone) {
@@ -15,5 +15,9 @@ class FormRepository extends FormRepoInterface {
 
   bool isValidateOtp(String otp) {
     return super.otpRegEx.hasMatch(otp);
+  }
+
+  bool isValidateName(String name) {
+    return super.nameRegEx.hasMatch(name);
   }
 }
