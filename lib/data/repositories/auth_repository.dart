@@ -4,9 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepository extends AuthRepoInterface {
-  final FirebaseAuth firebaseAuth;
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-  AuthRepository(this.firebaseAuth);
+  AuthRepository();
 
   @override
   Future<void> sendOtp({

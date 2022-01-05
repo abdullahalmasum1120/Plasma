@@ -4,15 +4,15 @@ abstract class AuthState extends Equatable {
   const AuthState();
 }
 
-class AuthInitial extends AuthState {
+class AuthInitialState extends AuthState {
   @override
   List<Object> get props => [];
 }
 
-class AuthenticationFailedState extends AuthState {
+class OtpExceptionState extends AuthState {
   final FirebaseAuthException firebaseAuthException;
 
-  AuthenticationFailedState(this.firebaseAuthException);
+  OtpExceptionState(this.firebaseAuthException);
 
   @override
   List<Object> get props => [firebaseAuthException];
@@ -42,16 +42,12 @@ class OtpSendingState extends AuthState {
   List<Object?> get props => [];
 }
 
-class UpdateUserDataState extends AuthState {
-  @override
-  List<Object?> get props => [];
-}
-
 class OtpVerifyingState extends AuthState {
   @override
   List<Object?> get props => [];
 }
-class SignedInState extends AuthState {
+
+class OtpVerifiedState extends AuthState {
   @override
   List<Object?> get props => [];
 }

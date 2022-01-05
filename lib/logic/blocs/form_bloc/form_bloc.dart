@@ -8,15 +8,19 @@ part 'form_state.dart';
 
 class AuthFormBloc extends Bloc<AuthFormEvent, AuthFormState> {
   UserDataFormState _userDataFormState = UserDataFormState();
+  AuthOtpFormState _authOtpFormState = AuthOtpFormState();
   final FormRepository formValidatorRepository;
 
-  AuthFormBloc(this.formValidatorRepository) : super(InitialAuthFormState()) {
+  AuthFormBloc(this.formValidatorRepository) : super(AuthOtpFormState()) {
     on<PhoneFormChangedEvent>((event, emit) {
-      emit(
-          PhoneFormState(formValidatorRepository.isValidatePhone(event.phone)));
+      _authOtpFormState = _authOtpFormState.copyWith(
+          isValidPhone: formValidatorRepository.isValidatePhone(event.phone));
+      emit(_authOtpFormState);
     });
     on<OtpFormChangedEvent>((event, emit) {
-      emit(OtpFormState(formValidatorRepository.isValidateOtp(event.otp)));
+      _authOtpFormState = _authOtpFormState.copyWith(
+          isOtpValid: formValidatorRepository.isValidateOtp(event.otp));
+      emit(_authOtpFormState);
     });
     on<NameFormChangedEvent>((event, emit) {
       _userDataFormState = _userDataFormState.copyWith(

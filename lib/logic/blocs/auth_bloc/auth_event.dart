@@ -4,34 +4,25 @@ abstract class AuthEvent extends Equatable {
   const AuthEvent();
 }
 
-class AppStartedEvent extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
-
-class SendOtpEvent extends AuthEvent {
-  final String phone;
-
-  SendOtpEvent(this.phone);
-
-  @override
-  List<Object?> get props => [phone];
-}
-
 class OtpSendingEvent extends AuthEvent {
   @override
   List<Object?> get props => [];
 }
 
-class AuthenticatedEvent extends AuthEvent {
+class AuthInitialEvent extends AuthEvent {
   @override
   List<Object?> get props => [];
 }
 
-class AuthenticationFailedEvent extends AuthEvent {
+class OtpVerifiedEvent extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
+
+class OtpExceptionEvent extends AuthEvent {
   final FirebaseAuthException firebaseAuthException;
 
-  AuthenticationFailedEvent(this.firebaseAuthException);
+  OtpExceptionEvent(this.firebaseAuthException);
 
   @override
   List<Object?> get props => [firebaseAuthException];
@@ -56,12 +47,7 @@ class OtpTimeOutEvent extends AuthEvent {
   List<Object?> get props => [verificationId];
 }
 
-class VerifyOtpEvent extends AuthEvent {
-  final String verificationId;
-  final String otp;
-
-  VerifyOtpEvent(this.verificationId, this.otp);
-
+class OtpVerifyingEvent extends AuthEvent {
   @override
-  List<Object?> get props => [otp, verificationId];
+  List<Object?> get props => [];
 }

@@ -267,7 +267,7 @@ class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
                                   if (isComplete) {
                                     context
                                         .read<AuthBloc>()
-                                        .add(AuthenticatedEvent());
+                                        .add(OtpVerifiedEvent());
                                   }
                                 }
                               },

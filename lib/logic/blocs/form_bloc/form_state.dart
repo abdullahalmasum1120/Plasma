@@ -4,27 +4,27 @@ abstract class AuthFormState extends Equatable {
   const AuthFormState();
 }
 
-class InitialAuthFormState extends AuthFormState {
-  @override
-  List<Object?> get props => [];
-}
-
-class OtpFormState extends AuthFormState {
+class AuthOtpFormState extends AuthFormState {
   final bool isOtpValid;
-
-  OtpFormState(this.isOtpValid);
-
-  @override
-  List<Object?> get props => [isOtpValid];
-}
-
-class PhoneFormState extends AuthFormState {
   final bool isValidPhone;
 
-  PhoneFormState(this.isValidPhone);
+  const AuthOtpFormState({
+    this.isOtpValid = false,
+    this.isValidPhone = false,
+  });
+
+  AuthOtpFormState copyWith({
+    bool? isOtpValid,
+    bool? isValidPhone,
+  }) {
+    return AuthOtpFormState(
+      isOtpValid: isOtpValid ?? this.isOtpValid,
+      isValidPhone: isValidPhone ?? this.isValidPhone,
+    );
+  }
 
   @override
-  List<Object?> get props => [isValidPhone];
+  List<Object?> get props => [isValidPhone, isOtpValid];
 }
 
 class UserDataFormState extends AuthFormState {

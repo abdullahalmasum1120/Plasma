@@ -4,7 +4,6 @@ import 'package:blood_donation/data/model/assistant/chat_message.dart';
 import 'package:path/path.dart' as path;
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -122,6 +121,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
             visible: (sendButtonState == SendButtonState.hidden),
             child: GestureDetector(
               onLongPressStart: (details) async {
+
                 if (await Record().hasPermission()) {
                   await Record().start(path: myAudioPath);
                 }
