@@ -1,11 +1,10 @@
-import 'package:blood_donation/data/repositories/form_repository.dart';
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/components/filled_Button.dart';
 import 'package:blood_donation/logic/blocs/auth_bloc/auth_bloc.dart';
-import 'package:blood_donation/logic/blocs/form_bloc/form_bloc.dart';
 import 'package:blood_donation/logic/blocs/timer_bloc/timer_bloc.dart';
+import 'package:blood_donation/logic/cubits/auth_form/auth_form_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -39,7 +38,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => AuthFormBloc(FormRepository()),
+          create: (context) => AuthFormCubit(),
         ),
         BlocProvider(
           create: (context) => TimerBloc(ticker: Ticker()),
@@ -102,14 +101,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           const SizedBox(
                             height: MySizes.defaultSpace,
                           ),
-                          BlocBuilder<AuthFormBloc, AuthFormState>(
+                          BlocBuilder<AuthFormCubit, AuthFormState>(
                             builder: (context, formState) {
                               return TextFormField(
                                 controller: _phoneController,
                                 onChanged: (String phone) {
-                                  context.read<AuthFormBloc>().add(
-                                        PhoneFormChangedEvent(phone: phone),
-                                      );
+                                  context
+                                      .read<AuthFormCubit>()
+                                      .phoneChanged(phone);
                                 },
                                 keyboardType: TextInputType.phone,
                                 style: MyTextStyles(MyColors.black)
@@ -122,8 +121,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                         MySizes.defaultRadius),
                                   ),
                                   hintText: "Phone No",
-                                  errorText: formState is AuthOtpFormState &&
-                                          formState.isValidPhone
+                                  errorText: formState.isValidPhone
                                       ? null
                                       : "Invalid Phone",
                                   contentPadding: const EdgeInsets.symmetric(
@@ -139,8 +137,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                       color: MyColors.primary,
                                     ),
                                   ),
-                                  suffix: (formState is AuthOtpFormState &&
-                                          formState.isValidPhone)
+                                  suffix: (formState.isValidPhone)
                                       ? Material(
                                           child: InkWell(
                                             onTap: (authState
@@ -192,16 +189,16 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           SizedBox(
                             height: MySizes.defaultSpace,
                           ),
-                          BlocBuilder<AuthFormBloc, AuthFormState>(
+                          BlocBuilder<AuthFormCubit, AuthFormState>(
                             builder: (context, authFormState) {
                               return Visibility(
                                 visible: authState is OtpSentState,
                                 child: TextFormField(
                                   controller: _codeController,
                                   onChanged: (String otp) {
-                                    context.read<AuthFormBloc>().add(
-                                          OtpFormChangedEvent(otp: otp),
-                                        );
+                                    context
+                                        .read<AuthFormCubit>()
+                                        .otpChanged(otp);
                                   },
                                   keyboardType: TextInputType.number,
                                   style: MyTextStyles(MyColors.black)
@@ -209,11 +206,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                   decoration: InputDecoration(
                                     fillColor: MyColors.textFieldBackground,
                                     filled: true,
-                                    errorText:
-                                        (authFormState is AuthOtpFormState &&
-                                                authFormState.isOtpValid)
-                                            ? null
-                                            : "Invalid Otp",
+                                    errorText: (authFormState.isOtpValid)
+                                        ? null
+                                        : "Invalid Otp",
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(
                                           MySizes.defaultRadius),
@@ -230,7 +225,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           const SizedBox(
                             height: MySizes.defaultSpace,
                           ),
-                          BlocBuilder<AuthFormBloc, AuthFormState>(
+                          BlocBuilder<AuthFormCubit, AuthFormState>(
                             builder: (context, authFormState) {
                               return MyFilledButton(
                                 child: Text(
@@ -242,7 +237,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                 ),
                                 size: MySizes.maxButtonSize,
                                 function: (authState is OtpSentState &&
-                                        authFormState is AuthOtpFormState &&
                                         authFormState.isOtpValid)
                                     ? () async {
                                         context.read<AuthBloc>().verifyOtp(

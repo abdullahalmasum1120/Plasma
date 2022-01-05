@@ -13,3 +13,17 @@ class AppUnAuthenticatedState extends AppState {
   @override
   List<Object> get props => [];
 }
+
+class AppUserDataUploadState extends AppState {
+  @override
+  List<Object> get props => [];
+}
+
+class AppExceptionState extends AppState {
+  final FirebaseException _firebaseException;
+
+  AppExceptionState(this._firebaseException);
+
+  @override
+  List<Object> get props => [_firebaseException];
+}
