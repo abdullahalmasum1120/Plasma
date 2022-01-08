@@ -57,6 +57,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_native_splash: ^1.3.2
+  test:
 
 flutter_native_splash:
   color: "#FF2156"

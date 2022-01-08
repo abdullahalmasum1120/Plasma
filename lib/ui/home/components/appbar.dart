@@ -25,7 +25,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       iconTheme: const IconThemeData(color: MyColors.black),
       backgroundColor: MyColors.white,
       title: Text(
-        "App Title",
+        "Dashboard",
         style: MyTextStyles(MyColors.primary).titleTextStyle,
       ),
       elevation: 0,

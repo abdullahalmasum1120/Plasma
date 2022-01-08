@@ -9,12 +9,12 @@ class AppAuthenticatedEvent extends AppEvent {
   List<Object?> get props => [];
 }
 
-class AppStartedEvent extends AppEvent {
+class AppUnAuthenticatedEvent extends AppEvent {
   @override
   List<Object?> get props => [];
 }
 
-class AppUnAuthenticatedEvent extends AppEvent {
+class AppUserDataUploadEvent extends AppEvent {
   @override
   List<Object?> get props => [];
 }

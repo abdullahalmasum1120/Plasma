@@ -1,17 +1,15 @@
+import 'package:blood_donation/app/app_bloc/app_bloc.dart';
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
-import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/filled_Button.dart';
 import 'package:blood_donation/data/model/my_user.dart';
-import 'package:blood_donation/data/repositories/user_repository.dart';
-import 'package:blood_donation/logic/blocs/auth_bloc/auth_bloc.dart';
-import 'package:blood_donation/logic/cubits/user_data/user_data_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'logic/cubits/user_data/form_cubit.dart';
 
 class UpdateUserDataPage extends StatefulWidget {
   const UpdateUserDataPage({
@@ -26,7 +24,6 @@ class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
-  late String _selectedBloodGroup;
 
   @override
   void dispose() {
@@ -40,7 +37,7 @@ class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserDataCubit(),
+      create: (context) => UserDataFormCubit(),
       child: WillPopScope(
         onWillPop: () async => false,
         child: GestureDetector(
@@ -93,11 +90,13 @@ class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
                       const SizedBox(
                         height: MySizes.defaultSpace * 2,
                       ),
-                      BlocBuilder<UserDataCubit, UserDataFormState>(
+                      BlocBuilder<UserDataFormCubit, UserDataFormState>(
                         builder: (context, formState) {
                           return TextFormField(
                             onChanged: (String name) {
-                              context.read<UserDataCubit>().nameChanged(name);
+                              context
+                                  .read<UserDataFormCubit>()
+                                  .nameChanged(name);
                             },
                             keyboardType: TextInputType.name,
                             controller: usernameController,
@@ -119,11 +118,13 @@ class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
                       const SizedBox(
                         height: MySizes.defaultSpace,
                       ),
-                      BlocBuilder<UserDataCubit, UserDataFormState>(
+                      BlocBuilder<UserDataFormCubit, UserDataFormState>(
                         builder: (context, formState) {
                           return TextFormField(
                             onChanged: (String email) {
-                              context.read<UserDataCubit>().emailChanged(email);
+                              context
+                                  .read<UserDataFormCubit>()
+                                  .emailChanged(email);
                             },
                             controller: emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -146,12 +147,12 @@ class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
                       const SizedBox(
                         height: MySizes.defaultSpace,
                       ),
-                      BlocBuilder<UserDataCubit, UserDataFormState>(
+                      BlocBuilder<UserDataFormCubit, UserDataFormState>(
                         builder: (context, formState) {
                           return TextFormField(
                             onChanged: (String location) {
                               context
-                                  .read<UserDataCubit>()
+                                  .read<UserDataFormCubit>()
                                   .locationChanged(location);
                             },
                             controller: locationController,
@@ -175,54 +176,55 @@ class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
                       const SizedBox(
                         height: MySizes.defaultSpace,
                       ),
-                      DropdownButtonFormField<String>(
-                        validator: (bloodGroup) {
-                          if (bloodGroup != null) {
-                            return null;
-                          }
-                          return "Please Select Your Blood Group";
-                        },
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          fillColor: MyColors.textFieldBackground,
-                          filled: true,
-                          prefixIcon: Icon(
-                            Icons.bloodtype,
-                            color: MyColors.primary,
-                          ),
-                        ),
-                        hint: const Text("Blood Group"),
-                        items: <String>[
-                          'A+',
-                          'A-',
-                          'B+',
-                          'B-',
-                          'O+',
-                          'O-',
-                          'AB+',
-                          'AB-',
-                        ].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
+                      BlocBuilder<UserDataFormCubit, UserDataFormState>(
+                        builder: (context, formState) {
+                          return DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              errorText: formState.isValidBloodGroup
+                                  ? null
+                                  : "Not Selected",
+                              border: InputBorder.none,
+                              fillColor: MyColors.textFieldBackground,
+                              filled: true,
+                              prefixIcon: Icon(
+                                Icons.bloodtype,
+                                color: MyColors.primary,
+                              ),
+                            ),
+                            hint: const Text("Blood Group"),
+                            items: <String>[
+                              'A+',
+                              'A-',
+                              'B+',
+                              'B-',
+                              'O+',
+                              'O-',
+                              'AB+',
+                              'AB-',
+                            ].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (bloodGroup) {
+                              if (bloodGroup != null) {
+                                context
+                                    .read<UserDataFormCubit>()
+                                    .bloodGroupChanged(bloodGroup);
+                              }
+                            },
                           );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            if (value != null) {
-                              _selectedBloodGroup = value;
-                            }
-                          });
                         },
                       ),
                       const SizedBox(
                         height: MySizes.defaultSpace * 3,
                       ),
-                      BlocBuilder<UserDataCubit, UserDataFormState>(
+                      BlocBuilder<UserDataFormCubit, UserDataFormState>(
                         builder: (context, formState) {
                           return MyFilledButton(
                             child: Text(
-                              "UPDATE",
+                              formState.isLoading ? "Updating" : "UPDATE",
                               style:
                                   MyTextStyles(MyColors.white).buttonTextStyle,
                             ),
@@ -231,11 +233,12 @@ class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
                             function: () async {
                               if (formState.isValidLocation &&
                                   formState.isValidEmail &&
-                                  formState.isValidName) {
+                                  formState.isValidName &&
+                                  formState.isValidBloodGroup) {
                                 MyUser myUser = MyUser(
                                   username: usernameController.text.trim(),
                                   email: emailController.text.trim(),
-                                  bloodGroup: _selectedBloodGroup,
+                                  bloodGroup: formState.selectedBloodGroup,
                                   location: locationController.text.trim(),
                                   registrationTime: DateFormat('kk:mm')
                                       .format(DateTime.now()),
@@ -248,19 +251,13 @@ class _UpdateUserDataPageState extends State<UpdateUserDataPage> {
                                       .instance.currentUser!.phoneNumber,
                                   uid: FirebaseAuth.instance.currentUser!.uid,
                                 );
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return new Loading();
-                                  },
-                                );
-                                bool isComplete = await UserRepository()
-                                    .updateUserInfo(myUser);
-                                if (isComplete) {
-                                  context
-                                      .read<AuthBloc>()
-                                      .add(OtpVerifiedEvent());
-                                }
+
+                                await context
+                                    .read<UserDataFormCubit>()
+                                    .formSubmitted(myUser);
+                                context
+                                    .read<AppBloc>()
+                                    .add(AppAuthenticatedEvent());
                               }
                             },
                           );

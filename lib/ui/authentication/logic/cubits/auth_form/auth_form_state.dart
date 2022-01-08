@@ -1,4 +1,4 @@
-part of '../../cubits/auth_form/auth_form_cubit.dart';
+part of 'auth_form_cubit.dart';
 
 class AuthFormState extends Equatable {
   final bool isOtpValid;

@@ -2,12 +2,12 @@ import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/components/filled_Button.dart';
-import 'package:blood_donation/logic/blocs/auth_bloc/auth_bloc.dart';
-import 'package:blood_donation/logic/blocs/timer_bloc/timer_bloc.dart';
-import 'package:blood_donation/logic/cubits/auth_form/auth_form_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'logic/blocs/auth_bloc/auth_bloc.dart';
+import 'logic/blocs/timer_bloc/timer_bloc.dart';
+import 'logic/cubits/auth_form/auth_form_cubit.dart';
 
 class AuthenticationPage extends StatefulWidget {
   const AuthenticationPage({Key? key}) : super(key: key);
@@ -37,6 +37,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(
+          create: (context) => AuthBloc(),
+        ),
         BlocProvider(
           create: (context) => AuthFormCubit(),
         ),

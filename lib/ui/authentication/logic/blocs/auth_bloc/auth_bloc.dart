@@ -7,10 +7,10 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final FirebaseAuth _firebaseAuth;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final Duration _timeOutDuration = Duration(minutes: 2);
 
-  AuthBloc(this._firebaseAuth) : super(AuthInitialState()) {
+  AuthBloc() : super(AuthInitialState()) {
     on<OtpVerifyingEvent>((event, emit) async {
       emit(OtpVerifyingState());
     });

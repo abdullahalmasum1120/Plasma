@@ -20,4 +20,16 @@ class FormRepository extends FormRepoInterface {
   bool isValidateName(String name) {
     return super.nameRegEx.hasMatch(name);
   }
+
+  @override
+  bool isValidBloodGroup(String bloodGroup) {
+    return bloodGroup.contains("AB+") ||
+        bloodGroup.contains("AB-") ||
+        bloodGroup.contains("A+") ||
+        bloodGroup.contains("A-") ||
+        bloodGroup.contains("B+") ||
+        bloodGroup.contains("B-") ||
+        bloodGroup.contains("O+") ||
+        bloodGroup.contains("O-");
+  }
 }

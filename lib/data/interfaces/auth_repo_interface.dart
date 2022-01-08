@@ -1,4 +1,3 @@
-import 'package:blood_donation/data/model/my_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class AuthRepoInterface {
@@ -6,5 +5,5 @@ abstract class AuthRepoInterface {
 
   bool isSignedIn();
 
-  Future<MyUser> get currentUser;
+  User? get user;
 }

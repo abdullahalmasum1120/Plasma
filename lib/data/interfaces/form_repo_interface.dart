@@ -14,4 +14,6 @@ abstract class FormRepoInterface {
   bool isValidateOtp(String otp);
 
   bool isValidateName(String name);
+
+  bool isValidBloodGroup(String bloodGroup);
 }
