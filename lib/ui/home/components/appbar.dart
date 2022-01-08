@@ -11,12 +11,10 @@ import 'package:badges/badges.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final BuildContext context;
-  final String uid;
 
   const MyAppBar({
     Key? key,
     required this.context,
-    required this.uid,
   }) : super(key: key);
 
   @override
@@ -33,7 +31,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: FirebaseFirestore.instance
                 .collection("users")
-                .doc(uid)
+                .doc(FirebaseAuth.instance.currentUser!.uid)
                 .collection("receivedRequests")
                 .snapshots(),
             builder: (context, snapshot) {

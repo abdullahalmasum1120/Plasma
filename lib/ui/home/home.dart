@@ -21,8 +21,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: MyAppBar(
-        context: context,
-        uid: FirebaseAuth.instance.currentUser!.uid,
+        context: context
       ),
       body: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
           future: FirebaseFirestore.instance.collection("featuredImages").get(),
