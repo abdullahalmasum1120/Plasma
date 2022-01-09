@@ -1,9 +1,8 @@
 import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/data/model/featured_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'components/appbar.dart';
+import 'widgets/appbar.dart';
 import 'components/body.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,9 +19,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MyColors.white,
-      appBar: MyAppBar(
-        context: context
-      ),
+      appBar: MyAppBar(context: context),
       body: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
           future: FirebaseFirestore.instance.collection("featuredImages").get(),
           builder: (context, snapshot) {

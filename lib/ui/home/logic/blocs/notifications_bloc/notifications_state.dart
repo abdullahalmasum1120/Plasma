@@ -1,11 +1,8 @@
 part of 'notifications_bloc.dart';
 
-abstract class NotificationsState extends Equatable {
-  const NotificationsState();
-}
 
-class FetchedNotificationsState extends NotificationsState {
-  final List<Notification> notifications;
+class FetchedNotificationsState extends Equatable {
+  final List<MyNotification> notifications;
 
   FetchedNotificationsState({required this.notifications});
 

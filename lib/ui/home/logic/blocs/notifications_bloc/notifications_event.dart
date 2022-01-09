@@ -5,7 +5,7 @@ abstract class NotificationsEvent extends Equatable {
 }
 
 class NotificationReceivedEvent extends NotificationsEvent {
-  final List<Notification> notifications;
+  final List<MyNotification> notifications;
 
   NotificationReceivedEvent({required this.notifications});
 

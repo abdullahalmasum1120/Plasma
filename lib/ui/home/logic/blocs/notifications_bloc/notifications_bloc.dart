@@ -9,20 +9,24 @@ part 'notifications_event.dart';
 
 part 'notifications_state.dart';
 
-class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
+class NotificationsBloc
+    extends Bloc<NotificationsEvent, FetchedNotificationsState> {
   late StreamSubscription _notificationsStreamSubscription;
-  List<Notification> notifications = [];
+  List<MyNotification> notifications = <MyNotification>[];
 
   NotificationsBloc() : super(FetchedNotificationsState(notifications: [])) {
     _notificationsStreamSubscription = FirebaseFirestore.instance
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection("notifications")
+        .collection("receivedRequests")
         .snapshots()
         .listen((snapshot) {
+      notifications.clear();
       for (QueryDocumentSnapshot doc in snapshot.docs) {
-        //TODO: notifications.add();
+        notifications
+            .add(MyNotification.fromJson(doc.data() as Map<String, dynamic>));
       }
+      add(NotificationReceivedEvent(notifications: notifications));
     });
     on<NotificationReceivedEvent>((event, emit) {
       emit(FetchedNotificationsState(notifications: event.notifications));
