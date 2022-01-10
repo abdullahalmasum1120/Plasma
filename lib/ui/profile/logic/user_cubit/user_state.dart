@@ -1,10 +1,10 @@
 part of 'user_cubit.dart';
 
 class UserState extends Equatable {
-  final MyUser _myUser;
+  final MyUser myUser;
 
-  const UserState(this._myUser);
+  UserState(this.myUser);
 
   @override
-  List<Object?> get props => [_myUser];
+  List<Object?> get props => [myUser];
 }

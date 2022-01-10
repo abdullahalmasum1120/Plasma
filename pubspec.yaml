@@ -52,6 +52,7 @@ dependencies:
   flutter_bloc: ^8.0.0
   equatable: ^2.0.3
   connectivity: ^3.0.6
+  percent_indicator: ^3.4.0
 
 dev_dependencies:
   flutter_test:

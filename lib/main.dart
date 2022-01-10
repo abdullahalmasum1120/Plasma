@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app/app_bloc/app_bloc.dart';
 import 'app/obserber/observer.dart';
+import 'app/upload_bloc/upload_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,9 @@ Future<void> main() async {
           providers: [
             BlocProvider(
               create: (context) => AppBloc(),
+            ),
+            BlocProvider(
+              create: (context) => UploadBloc(),
             ),
           ],
           child: MyApp(),
