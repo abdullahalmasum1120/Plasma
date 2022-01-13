@@ -121,7 +121,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
             visible: (sendButtonState == SendButtonState.hidden),
             child: GestureDetector(
               onLongPressStart: (details) async {
-
                 if (await Record().hasPermission()) {
                   await Record().start(path: myAudioPath);
                 }

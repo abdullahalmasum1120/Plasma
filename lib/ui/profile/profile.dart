@@ -7,7 +7,6 @@ import 'package:blood_donation/components/dialogs/loading.dart';
 import 'package:blood_donation/components/dialogs/request_succesful.dart';
 import 'package:blood_donation/data/model/my_user.dart';
 import 'package:blood_donation/data/model/received_request.dart';
-import 'package:blood_donation/ui/authentication/authentication.dart';
 import 'package:blood_donation/ui/profile/logic/user_cubit/user_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -563,8 +562,7 @@ class Profile extends StatelessWidget {
                                     GestureDetector(
                                       onTap: () {
                                         FirebaseAuth.instance.signOut();
-                                        Get.offAll(
-                                            () => const AuthenticationPage());
+                                        Navigator.pop(context);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(

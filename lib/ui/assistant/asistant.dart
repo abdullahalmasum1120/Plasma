@@ -52,7 +52,7 @@ class _AssistantState extends State<Assistant> {
         ),
         backgroundColor: MyColors.white,
         title: Text(
-          "Assistant",
+          "Assistant (beta)",
           style: MyTextStyles(MyColors.primary).titleTextStyle,
         ),
       ),

@@ -17,9 +17,7 @@ class UserCubit extends Cubit<UserState> {
         .doc(this.uid)
         .snapshots()
         .listen((snapshot) {
-      MyUser myUser = MyUser.fromJson(snapshot.data() as Map<String, dynamic>);
-      print(myUser);
-      emit(UserState(myUser));
+      emit(UserState(MyUser.fromJson(snapshot.data() as Map<String, dynamic>)));
     });
   }
 

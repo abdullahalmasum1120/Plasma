@@ -58,7 +58,7 @@ class _MyBodyState extends State<MyBody> {
         Icons.assistant,
         color: MyColors.primary,
       ),
-      label: 'Assistant',
+      label: 'Assistant (beta)',
       widget: Assistant(),
       badgeText: '',
     ),
