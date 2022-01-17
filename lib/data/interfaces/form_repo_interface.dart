@@ -1,7 +1,7 @@
 abstract class FormRepoInterface {
   final RegExp phoneRegEx = RegExp(r'^01[13-9]\d{8}$');
   final RegExp emailRegEx = RegExp(r'^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$');
-  final RegExp locationRegex = RegExp(r'^[a-zA-Z ]{3,50}$');
+  final RegExp locationRegex = RegExp(r'^[a-zA-Z ,-]{3,50}$');
   final RegExp otpRegEx = RegExp(r'^\d{6}$');
   final RegExp nameRegEx = RegExp(r'^[a-zA-Z ]{3,20}$');
 

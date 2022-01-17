@@ -58,19 +58,19 @@ class _MyBodyState extends State<MyBody> {
         Icons.assistant,
         color: MyColors.primary,
       ),
-      label: 'Assistant (beta)',
+      label: 'Assistant',
       widget: Assistant(),
       badgeText: '',
     ),
-    // GridData(
-    //   icon: Icon(
-    //     Icons.campaign,
-    //     color: MyColors.primary,
-    //   ),
-    //   label: 'Campaign',
-    //   widget: Text("Not found"),
-    //   badgeText: '',
-    // ),
+    GridData(
+      icon: Icon(
+        Icons.campaign,
+        color: MyColors.primary,
+      ),
+      label: 'Coming',
+      widget: Text("Not found"),
+      badgeText: '',
+    ),
   ];
   int _currentImageIndex = 0;
   late Stream<QuerySnapshot<Map<String, dynamic>>> _requestsStream;

@@ -4,7 +4,6 @@ import 'package:blood_donation/app/app_config/database.dart';
 import 'package:blood_donation/data/model/my_user.dart';
 import 'package:equatable/equatable.dart';
 
-
 part 'user_state.dart';
 
 class UserCubit extends Cubit<UserState> {

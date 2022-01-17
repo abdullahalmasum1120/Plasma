@@ -563,6 +563,7 @@ class Profile extends StatelessWidget {
                                       onTap: () {
                                         FirebaseAuth.instance.signOut();
                                         Navigator.pop(context);
+                                        Navigator.pop(context);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(

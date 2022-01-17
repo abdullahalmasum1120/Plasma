@@ -5,6 +5,7 @@ import 'package:blood_donation/components/constant/colors.dart';
 import 'package:blood_donation/components/constant/size.dart';
 import 'package:blood_donation/components/constant/styles.dart';
 import 'package:blood_donation/data/model/grid_item.dart';
+import 'package:blood_donation/ui/assistant/asistant.dart';
 import 'package:flutter/material.dart';
 
 class MyGridCard extends StatelessWidget {
@@ -38,14 +39,16 @@ class MyGridCard extends StatelessWidget {
                   });
             }
           : () {
-              Navigator.push(
-                context,
-                new MaterialPageRoute(
-                  builder: (context) {
-                    return widgetToNavigate;
-                  },
-                ),
-              );
+              if (!(widgetToNavigate is Text)) {
+                Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                    builder: (context) {
+                      return widgetToNavigate;
+                    },
+                  ),
+                );
+              }
             },
       child: new Card(
         elevation: 2,
