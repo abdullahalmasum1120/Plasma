@@ -1,3 +1,3 @@
 # blood_donation
 
-{app-release.apk}
+'app-release.apk'
